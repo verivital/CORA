@@ -18,21 +18,20 @@ function res = test_conHyperplane_plot
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      25-May-2022
-% Last update:  09-May-2023 (TL: added plotted point checks)
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       25-May-2022
+% Last update:   09-May-2023 (TL, added plotted point checks)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 resvec = [];
 
 % instantiate constrained hyperplane
-c = [1, 1];
-d = 2;
-A = [1, 0];
-b = 2.5;
-hyp = conHyperplane(c, d, A, b);
+a = [1, 1]; b = 2;
+C = [1, 0];
+d = 2.5;
+hyp = conHyperplane(a, b, C, d);
 
 try
     % try all variations in plotting
@@ -77,4 +76,4 @@ end
 % gather results
 res = all(resvec);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

@@ -38,22 +38,22 @@ classdef conZonotope < contSet
 %
 % See also: interval
 
-% Author:       Dmitry Grebenyuk, Mark Wetzlinger
-% Written:      03-September-2017
-% Last update:  19-March-2021 (MW, error messages)
-%               14-December-2022 (TL, property check in inputArgsCheck)
-%               29-March-2023 (TL: optimized constructor)
-% Last revision:02-May-2020 (MW, methods list, rewrite methods(hidden),
-%                                 add property validation)
-%               16-June-2023 (MW, restructure using auxiliary functions)
+% Authors:       Dmitry Grebenyuk, Mark Wetzlinger, Tobias Ladner
+% Written:       03-September-2017
+% Last update:   19-March-2021 (MW, error messages)
+%                14-December-2022 (TL, property check in inputArgsCheck)
+%                29-March-2023 (TL, optimized constructor)
+%                13-September-2023 (TL, replaced Z property with c and G)
+% Last revision: 02-May-2020 (MW, methods list, rewrite methods(hidden), add property validation)
+%                16-June-2023 (MW, restructure using auxiliary functions)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 properties (SetAccess = private, GetAccess = public)
     
-    % center and generators  x = Z(:,1) + Z(:,2:end)*beta; |beta| <= 1
-    % format:       matrix
-    Z = [];
+    % center and generators  x = c + G*beta; |beta| <= 1
+    c, G;
+    Z = []; % legacy Z = [c,g_1,...,g_p]
     
     % constraint A*beta = b; |beta| <= 1
     % format:       matrix
@@ -77,6 +77,11 @@ methods
     % class constructor
     function obj = conZonotope(varargin)
 
+        % 0. avoid empty instantiation
+        if nargin == 0
+            throw(CORAerror('CORA:noInputInSetConstructor'));
+        end
+
         % 1. copy constructor
         if nargin == 1 && isa(varargin{1},'conZonotope')
             obj = varargin{1}; return
@@ -88,8 +93,12 @@ methods
         % 3. check correctness of input arguments
         aux_checkInputArgs(c,G,A,b,nargin);
 
-        % 4. assign properties
-        obj.Z = [c,G];
+        % 4. compute properties
+        [c,G,A,b] = aux_computeProperties(c,G,A,b);
+
+        % 5. assign properties
+        obj.c = c;
+        obj.G = G;
         obj.A = A;
         obj.b = b;
 
@@ -110,10 +119,9 @@ methods
     cZ = intersectStrip(cZ,C,phi,y,varargin)
     I = interval(cZ)
     cZ = intervalMultiplication(cZ,I)
-    res = isempty(cZ)
     res = isFullDim(cZ)
     cZ = minkDiff(cZ1,S,varargin)
-    P = mptPolytope(cZ)
+    P = polytope(cZ)
     cZ = mtimes(factor1,factor2)
     cZ = or(cZ1,varargin)
     han = plot(cZ,varargin)
@@ -125,19 +133,54 @@ methods
     cZ = reduce(cZ,method,order,varargin)
     cZ = reduceConstraints(cZ,varargin)
     cZ = rescale(cZ,varargin)
+    [res,S] = representsa_(cZ,type,tol,varargin)
     cZsplit = split(cZ,varargin)
     zB = zonoBundle(cZ)
-    Z = zonotope(cZ,varargin)
-             
+    Z = zonotope(cZ,varargin)             
 end
 
 methods (Static = true)
     cZ = generateRandom(varargin) % generate random constrained zonotope
+    cz = empty(n) % instantiates an empty constrained zonotope
+end
+
+
+% getter & setter ---------------------------------------------------------
+
+methods
+    function obj = set.G(obj,G)
+        % fix dimension if empty
+        if isempty(G)
+            G = zeros(dim(obj),0);
+        end
+        obj.G = G;
+    end
+
+    % getter & setter for legacy Z property
+    function Z = get.Z(obj)
+        warning(['CORA: The property conZonotope.Z is deprecated (since CORA 2024) and will be removed in a future release. ' ...
+            'Please use conZonotope.c and conZonotope.G instead. ' ...
+            'This change was made to be consistent with the notation in papers.']);
+
+        Z = [obj.c, obj.G];
+    end
+
+    function obj = set.Z(obj, Z)
+        warning(['CORA: The property conZonotope.Z is deprecated (since CORA 2024) and will be removed in a future release. ' ...
+            'Please use conZonotope.c and conZonotope.G instead. ' ...
+            'This change was made to be consistent with the notation in papers.']);
+
+        if ~isempty(Z)
+            obj.c = Z(:,1);
+            obj.G = Z(:,2:end);
+        end
+    end
 end
 
 end
 
-% Auxiliary Functions -----------------------------------------------------
+
+% Auxiliary functions -----------------------------------------------------
 
 function [c,G,A,b] = aux_parseInputArgs(varargin)
 % parse input arguments from user and assign to variables
@@ -147,18 +190,16 @@ function [c,G,A,b] = aux_parseInputArgs(varargin)
         throw(CORAerror('CORA:tooManyInputArgs',4));
     end
 
-    % no input arguments
-    if nargin == 0
-        c = []; G = []; A = []; b = [];
-        return
-    end
-
     % set default values depending on nargin
     if nargin == 1 || nargin == 3
         % only center given, or [c,G] with A and b
         [c,A,b] = setDefaultValues({[],[],[]},varargin);
-        G = c(:,2:end);
-        c = c(:,1);
+        if size(varargin{1},2) > 0
+            G = c(:,2:end);
+            c = c(:,1);
+        else
+            G = [];
+        end
     elseif nargin == 2 || nargin == 4
         % c,G or c,G,A,b given
         [c,G,A,b] = setDefaultValues({[],[],[],[]},varargin);
@@ -174,16 +215,16 @@ function aux_checkInputArgs(c,G,A,b,n_in)
 
         if n_in == 1 || n_in == 3
             inputChecks = { ...
-                {c, 'att', 'numeric', {'finite', 'column'}};
+                {c, 'att', 'numeric', {'finite'}};
                 {G, 'att', 'numeric', {'finite', 'matrix'}};
             };
 
         elseif n_in == 2 || n_in == 4
             % check whether c and G fit together to avoid bad message
-            if ~isvector(c)
+            if ~isempty(c) && ~isvector(c)
                 throw(CORAerror('CORA:wrongInputInConstructor',...
                     'The center has to be a column vector.')); 
-            elseif length(c) ~= size(G,1)
+            elseif ~isempty(G) && length(c) ~= size(G,1)
                 throw(CORAerror('CORA:wrongInputInConstructor',...
                     'The dimensions of the center and the generator matrix do not match.')); 
             end
@@ -196,13 +237,13 @@ function aux_checkInputArgs(c,G,A,b,n_in)
 
         % check correctness of A and b, also w.r.t G
         if ~isempty(A) && ~isempty(b)
-            if ~isvector(b) % b is a vector ?
+            if ~isvector(b) % b is a vector?
                 throw(CORAerror('CORA:wrongInputInConstructor',...
                     'The constraint offset has to be a vector.'));
             elseif size(A,2) ~= (size(G,2)) % A fits G?
                 throw(CORAerror('CORA:wrongInputInConstructor',...
                     'The dimensions of the generator matrix and the constraint matrix do not match.'));
-            elseif size(A,1) ~= length(b) % A fits b ?
+            elseif size(A,1) ~= length(b) % A fits b?
                 throw(CORAerror('CORA:wrongInputInConstructor',...
                     'The dimensions of the constraint matrix and the constraint offset do not match.'));
             end
@@ -212,4 +253,19 @@ function aux_checkInputArgs(c,G,A,b,n_in)
 
 end
 
-%------------- END OF CODE --------------
+function [c,G,A,b] = aux_computeProperties(c,G,A,b)
+
+    % if G is empty, set correct dimension
+    if isempty(G)
+        G = zeros(size(c,1),0);
+    end
+
+    % if no constraints, set correct dimension
+    if isempty(A)
+        A = zeros(0,size(G,2));
+        b = zeros(0,1);
+    end
+
+end
+
+% ------------------------------ END OF CODE ------------------------------

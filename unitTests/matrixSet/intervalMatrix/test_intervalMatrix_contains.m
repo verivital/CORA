@@ -2,7 +2,7 @@ function res = test_intervalMatrix_contains
 % test_intervalMatrix_contains - unit test function for contains
 % 
 % 
-% Syntax:  
+% Syntax:
 %    res = test_intervalMatrix_contains
 %
 % Inputs:
@@ -17,16 +17,14 @@ function res = test_intervalMatrix_contains
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      03-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       03-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-% empty interval matrix
-intMat = intervalMatrix();
-res = contains(intMat,[]);
+res = true(0);
 
 % instantiate interval matrix
 c = [2 3 4; 5 6 0];
@@ -50,4 +48,4 @@ res(end+1,1) = contains(intMat,M,'exact',0.2);
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

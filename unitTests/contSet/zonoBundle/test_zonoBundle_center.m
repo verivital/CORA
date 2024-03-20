@@ -1,7 +1,7 @@
 function res = test_zonoBundle_center
 % test_zonoBundle_center - unit test function of center
 %
-% Syntax:  
+% Syntax:
 %    res = test_zonoBundle_center
 %
 % Inputs:
@@ -16,17 +16,18 @@ function res = test_zonoBundle_center
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      23-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       23-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % fully-empty zonoBundle
-zB = zonoBundle();
+n = 2;
+zB = zonoBundle.empty(n);
 c = center(zB);
-res = isnumeric(c) && isempty(c);
+res = isnumeric(c) && isempty(c) && size(c,1) == n;
 
 % non-empty intersection
 Z1 = zonotope([1;1], [3 0; 0 2]);
@@ -46,4 +47,4 @@ res(end+1,1) = isnumeric(c) && isempty(c);
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

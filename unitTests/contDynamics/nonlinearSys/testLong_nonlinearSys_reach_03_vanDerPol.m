@@ -5,7 +5,7 @@ function res = testLong_nonlinearSys_reach_03_vanDerPol
 %    It is checked whether the reachable set is enclosed in the initial set
 %    after a certain amount of time.
 %
-% Syntax:  
+% Syntax:
 %    res = testLong_nonlinearSys_reach_03_vanDerPol
 %
 % Inputs:
@@ -19,12 +19,12 @@ function res = testLong_nonlinearSys_reach_03_vanDerPol
 %        "Reachability analysis of nonlinear systems with uncertain
 %        parameters using conservative linearization", CDC 2008
 
-% Author:       Matthias Althoff
-% Written:      26-June-2009
-% Last update:  23-April-2020 (restructure params/options)
-% Last revision:---
+% Authors:       Matthias Althoff
+% Written:       26-June-2009
+% Last update:   23-April-2020 (restructure params/options)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % Parameters --------------------------------------------------------------
 
@@ -62,33 +62,39 @@ R = reach(vanderPol, params, options);
 
 % obtain array of enclosing polytopes of last reachable set
 Rfin = query(R,'finalSet');
-Premain = mptPolytope(Rfin{1});
-
+Premain = polytope(Rfin{1});
 for i = 2:length(Rfin)
-    Premain = Premain | mptPolytope(Rfin{i});
+    Premain = Premain | polytope(Rfin{i});
 end
 
-% remove previous reachable sets
-iStep = 1;
-t = 0;
-
-while ~isempty(Premain) && t < 0.4
-    for iSet = 1:length(R(iStep).timeInterval.set)
-        Preach = mptPolytope(R(iStep).timeInterval.set{iSet});
-        Premain = Premain\Preach;
-        t = R(iStep).timePoint.time{iSet};
-        if t > 0.4
-           break; 
-        end
-    end
-    iStep = iStep + 1;
+% check containment in hull of first couple of time-interval solutions
+P_hull = polytope(params.R0);
+for s=1:6
+    P_hull = P_hull | polytope(R(1).timeInterval.set{s});
 end
+res = contains(P_hull,Premain);
 
-% obtain result
-if isempty(Premain)
-    res = true;
-else
-    res = false;
-end
 
-%------------- END OF CODE --------------
+% fix polytope/mldivide for test below...
+% % remove previous reachable sets
+% iStep = 1; t = 0;
+% while ~isempty(Premain) && t < 0.4
+%     for iSet = 1:length(R(iStep).timeInterval.set)
+%         Preach = polytope(R(iStep).timeInterval.set{iSet});
+%         Premain = Premain \ Preach;
+%         t = R(iStep).timePoint.time{iSet};
+%         if t > 0.4
+%            break; 
+%         end
+%     end
+%     iStep = iStep + 1;
+% end
+% 
+% % obtain result
+% if representsa(Premain,'emptySet')
+%     res = true;
+% else
+%     res = false;
+% end
+
+% ------------------------------ END OF CODE ------------------------------

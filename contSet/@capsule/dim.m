@@ -1,7 +1,7 @@
 function n = dim(C)
 % dim - returns the dimension of the ambient space of a capsule
 %
-% Syntax:  
+% Syntax:
 %    n = dim(C)
 %
 % Inputs:
@@ -14,23 +14,20 @@ function n = dim(C)
 %    C = capsule([1; 1; 0], [0.5; -1; 1], 0.5);
 %    n = dim(C)
 %
-% Other m-files required: center.m
+% Other m-files required: none
 % Subfunctions: none
 % MAT-files required: none
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      15-Sep-2019 
-% Last update:  12-March-2021 (MW, add empty case)
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       15-September-2019 
+% Last update:   12-March-2021 (MW, add empty case)
+%                09-January-2024 (MW, simplify)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-if ~isempty(C)
-    n = length(center(C));
-else
-    n = 0;
-end
+n = size(C.c,1);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

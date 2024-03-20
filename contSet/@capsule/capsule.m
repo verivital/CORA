@@ -5,7 +5,7 @@ classdef capsule < contSet
 %    This class represents capsule objects defined as
 %    C := L + S, L = {c + g*a | a \in [-1,1]}, S = {x | ||x||_2 <= r}.
 %
-% Syntax:  
+% Syntax:
 %    obj = capsule(c)
 %    obj = capsule(c,g)
 %    obj = capsule(c,g,r)
@@ -31,14 +31,14 @@ classdef capsule < contSet
 %
 % See also: interval, polytope
 
-% Author:       Matthias Althoff
-% Written:      04-March-2019
-% Last update:  02-May-2020 (MW, add property validation)
-%               19-March-2021 (MW, error messages, remove capsule(r) case)
-%               14-December-2022 (TL, property check in inputArgsCheck)
-% Last revision:16-June-2023 (MW, restructure using auxiliary functions)
+% Authors:       Matthias Althoff
+% Written:       04-March-2019
+% Last update:   02-May-2020 (MW, add property validation)
+%                19-March-2021 (MW, error messages, remove capsule(r) case)
+%                14-December-2022 (TL, property check in inputArgsCheck)
+% Last revision: 16-June-2023 (MW, restructure using auxiliary functions)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 properties (SetAccess = protected, GetAccess = public)
     c; % center
@@ -50,6 +50,11 @@ methods
 
     function obj = capsule(varargin)
 
+        % 0. avoid empty instantiation
+        if nargin == 0
+            throw(CORAerror('CORA:noInputInSetConstructor'));
+        end
+
         % 1. copy constructor
         if nargin == 1 && isa(varargin{1},'capsule')
             obj = varargin{1}; return
@@ -59,9 +64,12 @@ methods
         [c,g,r] = aux_parseInputArgs(varargin{:});
 
         % 3. check correctness of input arguments
-        aux_checkInputArgs(c,g,r,nargin);
+        aux_checkInputArgs(c,g,r);
 
-        % 4. assign properties
+        % 4. compute properties
+        [c,g,r] = aux_computeProperties(c,g,r);
+
+        % 5. assign properties
         obj.c = c;
         obj.g = g;
         obj.r = r;
@@ -72,12 +80,14 @@ end
 methods (Static = true)
     C = enclosePoints(varargin) % enclose point cloud by capsule
     C = generateRandom(varargin) % generates random capsule
+    C = empty(n) % instantiates an empty capsule
 end
 
 end
 
 
 % Auxiliary functions -----------------------------------------------------
+
 function [c,g,r] = aux_parseInputArgs(varargin)
 % parse input arguments from user and assign to variables
 
@@ -86,43 +96,27 @@ function [c,g,r] = aux_parseInputArgs(varargin)
         throw(CORAerror('CORA:tooManyInputArgs',3));
     end
 
-    % no input arguments
-    if nargin == 0
-        c = []; g = []; r = 0;
-        return
-    end
-
     % assign center
-    c = varargin{1};
-    % default values for generator and radius
-    g = zeros(length(c),1);
-    r = 0;
-
-    % assign generator if given
-    if nargin > 1 && ~isempty(varargin{2})
-        g = varargin{2};
-    end
-    % assign radius if given
-    if nargin > 2
-        r = varargin{3};
-    end
+    [c,g,r] = setDefaultValues({[],[],[]},varargin);
 
 end
 
-function aux_checkInputArgs(c,g,r,n_in)
+function aux_checkInputArgs(c,g,r)
 % check correctness of input arguments
 
     % only check if macro set to true
-    if CHECKS_ENABLED && n_in > 0
+    if CHECKS_ENABLED
 
-        inputArgsCheck({ ...
-            {c, 'att', {'numeric','numeric'}, {{'nonempty','finite','column'},{'size',[]}} }; ...
-            {g, 'att', {'numeric','numeric'}, {{'nonempty','finite','column'},{'size',[]}} }; ...
-            {r, 'att', 'numeric', {'finite', 'nonnegative', 'scalar'}};
-        })
+        if ~isempty(c) && ~isempty(g) && ~isempty(r)
+            inputArgsCheck({ ...
+                {c, 'att', {'numeric','numeric'}, {{'nonempty','finite','column'},{'size',[]}} }; ...
+                {g, 'att', {'numeric','numeric'}, {{'nonempty','finite','column'},{'size',[]}} }; ...
+                {r, 'att', 'numeric', {'finite', 'nonnegative', 'scalar'}};
+            })
+        end
 
         % dimension of center and generator must match
-        if ~all(size(c) == size(g))
+        if ~isempty(g) && ~all(size(c) == size(g))
             throw(CORAerror('CORA:wrongInputInConstructor',...
                 'Dimension of center and generator do not match.'));
         end
@@ -131,4 +125,24 @@ function aux_checkInputArgs(c,g,r,n_in)
 
 end
 
-%------------- END OF CODE --------------
+function [c,g,r] = aux_computeProperties(c,g,r)
+
+    if isempty(g)
+        if ~isempty(c)
+            g = zeros(size(c,1),1);
+        else
+            g = zeros(size(c,1),0);
+        end
+    end
+
+    if isempty(r)
+        if ~isempty(c)
+            r = 0;
+        else
+            zeros(0,0);
+        end
+    end
+
+end
+
+% ------------------------------ END OF CODE ------------------------------

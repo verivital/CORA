@@ -3,7 +3,7 @@ function res = test_conPolyZono_supportFunc
 %                                enclosure of constrained polynomial 
 %                                zonotopes
 %
-% Syntax:  
+% Syntax:
 %    test_conPolyZono_supportFunc
 %
 % Inputs:
@@ -18,31 +18,32 @@ function res = test_conPolyZono_supportFunc
 %
 % See also: conPolyZono/supportFunc
 
-% Author:       Niklas Kochdumper
-% Written:      26-January-2021
-% Last update:  ---
-% Last revision:---
+% Authors:       Niklas Kochdumper
+% Written:       26-January-2021
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
-	
-res = true;
+% ------------------------------ BEGIN CODE -------------------------------
+
+res = true(0);
 tol = 1e-6;
 
 % empty set
-res = res && supportFunc(conPolyZono(),[1;1],'upper') == -Inf;
-res = res && supportFunc(conPolyZono(),[1;1],'lower') == Inf;
+cPZ = conPolyZono.empty(2);
+res(end+1,1) = supportFunc(cPZ,[1;1],'upper') == -Inf;
+res(end+1,1) = supportFunc(cPZ,[1;1],'lower') == Inf;
 
 % Analytical Tests --------------------------------------------------------
 
 % define constrained polynomial zonotope
 c = [0;0];
 G = [1 0 1 -1; 0 2 1 2];
-expMat = [1 2 1 0; 0 0 1 2; 0 0 0 0];
+E = [1 2 1 0; 0 0 1 2; 0 0 0 0];
 A = [1 1 0.5];
 b = 0.5;
-expMat_ = [0 1 0;1 0 0; 0 0 1];
+EC = [0 1 0;1 0 0; 0 0 1];
 
-cPZ = conPolyZono(c,G,expMat,A,b,expMat_);
+cPZ = conPolyZono(c,G,E,A,b,EC);
 
 % define direction
 d = [1;1];
@@ -66,8 +67,9 @@ options = optimoptions('quadprog','Display','off');
 % plot(ch,[1,2],'b');
 
 % compare with exact solution
-if ~withinTol(val,val_,tol)
-    res = false;
-end
+res(end+1,1) = withinTol(val,val_,tol);
 
-%------------- END OF CODE --------------
+% combine results
+res = all(res);
+
+% ------------------------------ END OF CODE ------------------------------

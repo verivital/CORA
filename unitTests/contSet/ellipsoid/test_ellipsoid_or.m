@@ -1,7 +1,7 @@
 function res = test_ellipsoid_or
 % test_ellipsoid_or - unit test function of or
 %
-% Syntax:  
+% Syntax:
 %    res = test_ellipsoid_or
 %
 % Inputs:
@@ -16,18 +16,19 @@ function res = test_ellipsoid_or
 %
 % See also: -
 
-% Author:       Victor Gassmann
-% Written:      26-July-2021
-% Last update:  ---
-% Last revision:---
+% Authors:       Victor Gassmann
+% Written:       26-July-2021
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 res = true;
 load cases.mat E_c
 
 % empty set
-if ~isequal(or(E_c{1}.E1,ellipsoid()),E_c{1}.E1)
+E_empty = ellipsoid.empty(2);
+if ~isequal(or(E_c{1}.E1,E_empty),E_c{1}.E1)
     res = false;
 end
 
@@ -54,4 +55,4 @@ for i=1:length(E_c)
     
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

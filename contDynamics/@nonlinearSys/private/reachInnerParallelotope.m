@@ -2,7 +2,7 @@ function [Rin,Rout] = reachInnerParallelotope(sys,params,options)
 % reachInnerParallelotope - compute an inner-approximation of the reachable 
 %                           set using the algorithm in [1].
 %
-% Syntax:  
+% Syntax:
 %    [Rin,Rout] = reachInnerParallelotope(sys,options)
 %
 % Inputs:
@@ -29,44 +29,36 @@ function [Rin,Rout] = reachInnerParallelotope(sys,params,options)
 %
 % See also: reachInner
 
-% Author:       Niklas Kochdumper
-% Written:      18-January-2020
-% Last update:  ---
-% Last revision:---
+% Authors:       Niklas Kochdumper
+% Written:       18-January-2020
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
     % options preprocessing
     options = validateOptions(sys,mfilename,params,options);
 
     % compute outer-approximation of the reachable set for the center of
     % the initial set
-    params.R0 = zonotope(center(options.R0));
-    params.tStart = options.tStart;
-    params.tFinal = options.tFinal;
-    
-    options_ = options;
-    options_ = rmfield(options_,'algInner');
-    options_ = rmfield(options_,'R0');
-    options_ = rmfield(options_,'tStart');
-    options_ = rmfield(options_,'tFinal');
+    [params_outer,options_outer] = aux_getOuterReachOptions(options);
     
     name = ['reachInnerParallelo1',sys.name];
     sysCen = nonlinearSys(name,@(x,u) sys.mFile(x,u));
     
-    R = reach(sysCen,params,options_);
+    R = reach(sysCen,params_outer,options_outer);
     
     % compute outer-approximation of the Jacobian function as defined in
     % Sec. 3.1 in [2]
-    f = dynamicFunctionJacobian(sys);
+    f = aux_dynamicFunctionJacobian(sys);
     name = ['reachInnerParallelo2',sys.name];
     sysJac = nonlinearSys(name,f);
      
     n = dim(params.R0); I = eye(n);
     params.R0 = cartProd(zonotope(options.R0),zonotope(I(:)));
-    options_ = rmfield(options_,'maxError');
+    options_outer = rmfield(options_outer,'maxError');
     
-    Rjac = reach(sysJac,params,options_);
+    Rjac = reach(sysJac,params,options_outer);
 
     % compute inner-approximation using Theorem 3 in [1]
     list = cell(length(R.timePoint.set),1);
@@ -76,6 +68,9 @@ function [Rin,Rout] = reachInnerParallelotope(sys,params,options)
     listContOuter = cell(length(R.timeInterval.set),1);
     
     for i = 1:length(R.timeInterval.set)
+
+        % log
+        verboseLog(i,options.timeStep*(i-1),options);
        
         % compute inner-approximation of the time-point reachable set
         f0 = R.timePoint.set{i+1};
@@ -84,7 +79,7 @@ function [Rin,Rout] = reachInnerParallelotope(sys,params,options)
         
         listOuter{i+1} = project(Rjac.timePoint.set{i+1},1:n);
         
-        list{i+1} = innerApproxPrecond(f0,J,options.R0);
+        list{i+1} = aux_innerApproxPrecond(f0,J,options.R0);
         
         % compute inner-approximation of the time-interval reachable set
         f0 = R.timeInterval.set{i};
@@ -93,8 +88,11 @@ function [Rin,Rout] = reachInnerParallelotope(sys,params,options)
         
         listContOuter{i} = project(Rjac.timeInterval.set{i},1:n);
         
-        listCont{i} = innerApproxPrecond(f0,J,options.R0);
+        listCont{i} = aux_innerApproxPrecond(f0,J,options.R0);
     end
+
+    % log
+    verboseLog(length(R.timeInterval.set),options.tFinal,options);
 
     % construct reachSet object for inner-approximation
     timePoint.set = list;
@@ -116,9 +114,29 @@ function [Rin,Rout] = reachInnerParallelotope(sys,params,options)
 end
 
 
-% Auxiliary Functions -----------------------------------------------------
+% Auxiliary functions -----------------------------------------------------
 
-function res = innerApproxPrecond(f0,J,X)
+function [params,options] = aux_getOuterReachOptions(options)
+
+    % set center of initial set as initial set
+    params.R0 = zonotope(center(options.R0));
+    % copy relevant fields to the params struct
+    params.tStart = options.tStart;
+    params.tFinal = options.tFinal;
+    
+    % remove params fields from the options struct
+    list = {'R0','U','u','tStart','tFinal','algInner','linAlg',...
+        'polyZono.maxDepGenOrder','polyZono.maxPolyZonoRatio',...
+        'polyZono.restructureTechnique'};
+    for i = 1:length(list)
+        if isfield(options,list{i})
+            options = rmfield(options,list{i}); 
+        end
+    end
+
+end
+
+function res = aux_innerApproxPrecond(f0,J,X)
 % compute inner-approximation with pre-conditioning Sec. II.B in [1]
 
     n = dim(f0);
@@ -133,20 +151,20 @@ function res = innerApproxPrecond(f0,J,X)
     end
     
     % compute inner-approximation
-    res = innerApprox(interval(C*f0),interval(C*J),X);
+    res = aux_innerApprox(interval(C*f0),interval(C*J),X);
     
     % backtransformation with inverse pre-conditioning matrix
-    if ~isempty(res)
+    if ~representsa_(res,'emptySet',1e-12)
         res = Cinv*zonotope(res);
     elseif any(any(C-eye(n)))
-        res = innerApprox(interval(f0),interval(J),X);
+        res = aux_innerApprox(interval(f0),interval(J),X);
         if ~isempty(res)
            res = zonotope(res); 
         end
     end
 end
 
-function res = innerApprox(f0,J,X)
+function res = aux_innerApprox(f0,J,X)
 % compute an inner-approximation of the range of a function according to
 % Theorem 3 in [1]
 
@@ -161,9 +179,9 @@ function res = innerApprox(f0,J,X)
        % dimensions
        for j = 1:m
           
-           temp = innerApproxScalar(f0(i),J(i,:),X,j);
+           temp = aux_innerApproxScalar(f0(i),J(i,:),X,j);
            
-           if ~isempty(temp) && rad(temp) >= u(i) - l(i)
+           if ~representsa_(temp,'emptySet',1e-12) && rad(temp) >= u(i) - l(i)
                u(i) = supremum(temp);
                l(i) = infimum(temp);
            end
@@ -178,7 +196,7 @@ function res = innerApprox(f0,J,X)
     end
 end
 
-function res = innerApproxScalar(f0,J,X,ind)
+function res = aux_innerApproxScalar(f0,J,X,ind)
 % compute an inner-approximation of the range of a scalar function 
 % according to Theorem 2 in [1]
 
@@ -198,7 +216,7 @@ function res = innerApproxScalar(f0,J,X,ind)
     end
 end
 
-function fun = dynamicFunctionJacobian(sys)
+function fun = aux_dynamicFunctionJacobian(sys)
 % construct the dynamic function for the Jacobian matrix according to
 % Equation (9) in [2]
 
@@ -228,4 +246,4 @@ function fun = dynamicFunctionJacobian(sys)
     fun = matlabFunction([f_;Jfun(:)],'Vars',{[x;J(:)],u});
 end
 
-%------------- END OF CODE -------------
+% ------------------------------ END OF CODE ------------------------------

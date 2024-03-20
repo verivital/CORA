@@ -2,7 +2,7 @@ function res = isApproxSymmetric(Q,TOL)
 % isApproxSymmetric - Checks if a shape matrix is symmetric (within
 %    tolerance)
 %
-% Syntax:  
+% Syntax:
 %    res = isApproxSymmetric(Q,TOL)
 %
 % Inputs:
@@ -22,18 +22,18 @@ function res = isApproxSymmetric(Q,TOL)
 %
 % See also: none
 
-% Author:       Victor Gassmann
-% Written:      13-March-2019
-% Last update:  15-October-2019
-% Last revision:---
+% Authors:       Victor Gassmann
+% Written:       13-March-2019
+% Last update:   15-October-2019
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % take default value for tolerance if none given
 if ~exist('TOL','var')
-    TOL = ellipsoid().TOL;
+    TOL = ellipsoid.empty(1).TOL;
 end
 
 res = all(all(withinTol(triu(Q),tril(Q)',TOL)));
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

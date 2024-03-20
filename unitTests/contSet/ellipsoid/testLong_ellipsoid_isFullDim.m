@@ -1,7 +1,7 @@
 function res = testLong_ellipsoid_isFullDim
 % testLong_ellipsoid_isFullDim - unit test function of isFullDim
 %
-% Syntax:  
+% Syntax:
 %    res = testLong_ellipsoid_isFullDim
 %
 % Inputs:
@@ -16,16 +16,16 @@ function res = testLong_ellipsoid_isFullDim
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      13-March-2021
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       13-March-2021
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % empty case: not full-dimensional
 res = true;
-% E = ellipsoid();
+% E = ellipsoid.empty(2);
 % if isFullDim(E)
 %     res = false;
 % end
@@ -55,4 +55,4 @@ for i=1:nrOfTests
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

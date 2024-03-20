@@ -1,7 +1,7 @@
 function res = test_zonoBundle_randPoint
 % test_zonoBundle_randPoint - unit test function of randPoint
 %
-% Syntax:  
+% Syntax:
 %    res = test_zonoBundle_randPoint
 %
 % Inputs:
@@ -16,17 +16,18 @@ function res = test_zonoBundle_randPoint
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      23-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       23-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % fully-empty zonoBundle
-zB = zonoBundle();
+n = 2;
+zB = zonoBundle.empty(n);
 p = randPoint(zB);
-res = isnumeric(p) && isempty(p);
+res = isnumeric(p) && isempty(p) && size(p,1) == n;
 
 % non-empty intersection
 Z1 = zonotope([1;1], [3 0; 0 2]);
@@ -52,4 +53,4 @@ res(end+1,1) = isnumeric(p) && isempty(p);
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

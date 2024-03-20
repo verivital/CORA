@@ -4,7 +4,7 @@ function res = testLong_zonotope_contains_SadraddiniTedrake
 %    results with an implementation using YALMIP, which is closer to the
 %    paper, but implemented less efficiently
 %
-% Syntax:  
+% Syntax:
 %    res = testLong_zonotope_contains_SadraddiniTedrake
 %
 % Inputs:
@@ -19,12 +19,12 @@ function res = testLong_zonotope_contains_SadraddiniTedrake
 %
 % See also: -
 
-% Author:       Matthias Althoff
-% Written:      21-July-2022
-% Last update:  ---
-% Last revision:---
+% Authors:       Matthias Althoff
+% Written:       21-July-2022
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % initialize partial results
 resPartial = [];
@@ -41,10 +41,19 @@ for iSet = 1:10
     res_original = contains(Z_l, Z_s, 'st');
     
     % compute alternative result
-    res_alternative = SadraddiniTedrake_alternative(Z_s, Z_l, 0); % order of Z_l and Z_s is different for this function
+    % Currently, the next function produces an error with the current
+    % Yalmip version (as of 09-February-2024), in combination with
+    % Matlab>2023b. Thus, instead we compare the results of 'st' with the
+    % exact method
+    %res_alternative = aux_SadraddiniTedrake_alternative(Z_s, Z_l, 0); % order of Z_l and Z_s is different for this function
+    res_alternative = Z_l.contains(Z_s, 'exact');
+
+    if res_alternative && ~res_original
+        resPartial(end+1) = false;
+    end
 
     % loop over all types
-    resPartial(end+1) = (res_original == res_alternative);
+    %resPartial(end+1) = (res_original == res_alternative);
 end
 
 %% create zonotopes -- random cases in 3D (zero center)
@@ -59,10 +68,19 @@ for iSet = 1:10
     res_original = contains(Z_l, Z_s, 'st');
     
     % compute alternative result
-    res_alternative = SadraddiniTedrake_alternative(Z_s, Z_l, 0); % order of Z_l and Z_s is different for this function
+    % Currently, the next function produces an error with the current
+    % Yalmip version (as of 09-February-2024), in combination with
+    % Matlab>2023b. Thus, instead we compare the results of 'st' with the
+    % exact method
+    %res_alternative = aux_SadraddiniTedrake_alternative(Z_s, Z_l, 0); % order of Z_l and Z_s is different for this function
+    res_alternative = Z_l.contains(Z_s, 'exact');
 
+    if res_alternative && ~res_original
+        resPartial(end+1) = false;
+    end
+    
     % loop over all types
-    resPartial(end+1) = (res_original == res_alternative);
+    %resPartial(end+1) = (res_original == res_alternative);
 end
 
 %result of all tests
@@ -71,8 +89,9 @@ res = all(resPartial);
 end
 
 
-% Auxiliary function ------------------------------------------------------
-function isIn = SadraddiniTedrake_alternative(Z1, Z2, tol)
+% Auxiliary functions -----------------------------------------------------
+
+function isIn = aux_SadraddiniTedrake_alternative(Z1, Z2, tol)
 % Alternative implementation of the enclosure check by Saddradini and 
 % Tedrake
 
@@ -103,4 +122,4 @@ isIn = ~exitFlag;
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

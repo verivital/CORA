@@ -1,7 +1,7 @@
 function E = enc_ellipsoid(Z,comptype)
 % enc_ellipsoid - Overapproximates a zonotope by an ellipsoid
 %
-% Syntax:  
+% Syntax:
 %    E = enc_ellipsoid(Z,comptype)
 %
 % Inputs:
@@ -29,13 +29,14 @@ function E = enc_ellipsoid(Z,comptype)
 %
 % See also: insc_ellipsoid, MVEE, MVIE
 
-% Author:       Victor Gassmann, Matthias Althoff
-% Written:      18-September-2019
-% Last update:  22-December-2020 (MA, degenerate zonotopes added)
-%               08-June-2021 (VG, moved degeneracy to main file)
-% Last revision:---
+% Authors:       Victor Gassmann, Matthias Althoff
+% Written:       18-September-2019
+% Last update:   22-December-2020 (MA, degenerate zonotopes added)
+%                08-June-2021 (VG, moved degeneracy to main file)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
+
 rankG = rank(generators(Z));
 dimG = dim(Z);
 assert(rankG==dimG,'Degeneracy should be handled in main file!');
@@ -47,17 +48,17 @@ else
     doExact = false;
 end
 %extract zonotope information, i.e. center and generator matrix
-G = Z.Z(:,2:end);
+G = Z.G;
 [n,m] = size(G);
 
-c = Z.Z(:,1);
+c = Z.c;
 
 %there are more generators than dimensions: cannot "fit" the ellipse directly to
 %generators
 if n<m 
-    %compute initial guess for ellipsoid containing Z ([1], Sec, 4.1) 
+    %compute initial guess for ellipsoid containing Z ([1], Sec. 4.1) 
     Q0 = m*(G*G');
-    TOL = ellipsoid().TOL;
+    TOL = ellipsoid.empty(1).TOL;
     Z0 = zonotope([zeros(n,1),G]);
     %compute transformation matrix T s.t. T*ellipsoid(Q0) == unit hyper
     %sphere
@@ -77,4 +78,5 @@ else
 %direct mapping possible
     E = ellipsoid(n*(G*G'),c);
 end
-%------------- END OF CODE --------------
+
+% ------------------------------ END OF CODE ------------------------------

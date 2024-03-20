@@ -1,7 +1,7 @@
 function res = test_ellipsoid_ne
 % test_ellipsoid_ne - unit test function of '~=' operator
 %
-% Syntax:  
+% Syntax:
 %    res = test_ellipsoid_ne
 %
 % Inputs:
@@ -16,15 +16,15 @@ function res = test_ellipsoid_ne
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      28-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       28-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % empty ellipsoid
-E = ellipsoid();
+E = ellipsoid.empty(2);
 
 res = ~(E ~= E);
 
@@ -46,4 +46,4 @@ res(end+1,1) = E1 ~= E4;
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

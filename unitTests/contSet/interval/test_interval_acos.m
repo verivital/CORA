@@ -2,7 +2,7 @@ function res = test_interval_acos
 % test_interval_acos - unit test function of sine for intervals,
 %    overloaded 'acos()' function for intervals
 %
-% Syntax:  
+% Syntax:
 %    res = test_interval_acos
 %
 % Inputs:
@@ -17,34 +17,40 @@ function res = test_interval_acos
 %
 % See also: mtimes
 
-% Author:       Mark Wetzlinger
-% Written:      08-August-2020
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       08-August-2020
+% Last update:   03-December-2023 (MW, add out of bounds cases)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 tol = 1e-9;
+res = true(0);
 
-% Check special values
-
+% Check special values:
 % x     acos(x)
 % -1    pi
 % 0     pi/2
 % 1     0
+I = interval([-1,0],[1,0]);
+I_acos = acos(I);
+I_true = interval([0,pi/2],[pi,pi/2]);
+res(end+1,1) = isequal(I_acos,I_true,tol);
 
-a = interval([-1,0],[1,0]);
-b = acos(a);
-
-binf_true = [0,pi/2];
-bsup_true = [pi,pi/2];
-
-res_val = true;
-if any(abs( b.inf - binf_true ) > tol) || any(abs( b.sup - bsup_true ) > tol)
-    res_val = false;
+% check out of bounds
+I = interval(-2,0);
+try
+    I_acos = acos(I);
+    res(end+1,1) = false;
+end
+I = interval(0.5,1.1);
+try
+    I_acos = acos(I);
+    res(end+1,1) = false;
 end
 
-% final test result
-res = all(res_val);
 
-%------------- END OF CODE --------------
+% combine results
+res = all(res);
+
+% ------------------------------ END OF CODE ------------------------------

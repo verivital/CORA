@@ -3,7 +3,7 @@ function res = test_zonotope_plot
 %    to go through many variations of input arguments
 %    note: only run-time errors checked, go through manually to check for bugs
 %
-% Syntax:  
+% Syntax:
 %    res = test_zonotope_plot
 %
 % Inputs:
@@ -18,12 +18,12 @@ function res = test_zonotope_plot
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      04-August-2020
-% Last update:  09-May-2023 (TL: added plotted point checks)
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       04-August-2020
+% Last update:   09-May-2023 (TL, added plotted point checks)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 resvec = [];
 
@@ -71,6 +71,13 @@ try
     resvec(end+1) = compareMatrices(V, [ax.Children(1).XData;ax.Children(1).YData],1e-4,'equal',true);
     % test color
     resvec(end+1) = isequal(colorOrder(1,:), ax.Children(1).Color);
+
+    % check FaceAlpha
+    plot(Z, 1:2, 'r', 'FaceAlpha', 0.1)
+    resvec(end+1) = isequal([1 0 0], ax.Children(1).FaceColor) ...
+        && isequal([1 0 0], ax.Children(1).EdgeColor) ...
+        && isequal(0.1, ax.Children(1).FaceAlpha) ...
+        && isequal(1, ax.Children(1).EdgeAlpha);
     
     % close figure
     close;
@@ -82,4 +89,4 @@ end
 % gather results
 res = all(resvec);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

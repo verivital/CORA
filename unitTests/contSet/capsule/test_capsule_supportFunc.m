@@ -1,7 +1,7 @@
 function res = test_capsule_supportFunc
 % test_capsule_supportFunc - unit test function of supportFunc
 %
-% Syntax:  
+% Syntax:
 %    res = test_capsule_supportFunc
 %
 % Inputs:
@@ -16,31 +16,27 @@ function res = test_capsule_supportFunc
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      11-March-2021
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       11-March-2021
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % Analytical test: generator aligned on x_1, unit length; unit radius
-res = true;
+res = true(0);
 
-% empty set
-C_e = capsule();
-if supportFunc(C_e,[1;1],'upper') ~= -Inf || supportFunc(C_e,[1;1],'lower') ~= Inf
-    res = false;
-end
+% empty capsule
+C_e = capsule.empty(2);
+res(end+1,1) = supportFunc(C_e,[1;1],'upper') == -Inf ...
+    && supportFunc(C_e,[1;1],'lower') == Inf;
 
 % 2D capsule without radius
 C = capsule([1;-1],[0;0],3);
 dir = [1;-2];
 [valC,xC] = supportFunc(C,dir);
 % check result
-if ~withinTol(dir'*xC,valC) || ~contains(C,xC)
-    res = false;
-end
-
+res(end+1,1) = withinTol(dir'*xC,valC) && contains(C,xC);
 
 
 % loop over different dimensions
@@ -70,15 +66,18 @@ for n = 2:4:30
                 || ~isequal(vals,interval(-2,2)) ...
                 || ~compareMatrices([vec_lower,vec_upper],[[-2;zeros(n-1,1)],[2;zeros(n-1,1)]]) ...
                 || ~compareMatrices(vecs,[[-2;zeros(n-1,1)],[2;zeros(n-1,1)]]) )
-            res = false; return
+            throw(CORAerror('CORA:testFailed'));
         elseif e~=1 && (~withinTol(val_lower,-1) || ~withinTol(val_upper,1) ...
                 || ~isequal(vals,interval(-1,1)) ...
                 || ~compareMatrices([vec_lower,vec_upper],[-basisvector,basisvector]) ...
                 || ~compareMatrices(vecs,[-basisvector,basisvector]) )
-            res = false; return
+            throw(CORAerror('CORA:testFailed'));
         end
     end
 
 end
 
-%------------- END OF CODE --------------
+% combine results
+res = all(res);
+
+% ------------------------------ END OF CODE ------------------------------

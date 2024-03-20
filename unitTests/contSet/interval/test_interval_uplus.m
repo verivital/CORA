@@ -1,7 +1,7 @@
 function res = test_interval_uplus
 % test_interval_uplus - unit test function of unary plus
 %
-% Syntax:  
+% Syntax:
 %    res = test_interval_uplus
 %
 % Inputs:
@@ -14,47 +14,33 @@ function res = test_interval_uplus
 % Subfunctions: none
 % MAT-files required: none
 
-% Author:       Dmitry Grebenyuk
-% Written:      19-January-2016
-% Last update:  ---
-% Last revision:---
+% Authors:       Dmitry Grebenyuk, Mark Wetzlinger
+% Written:       19-January-2016
+% Last update:   04-December-2023 (MW, add empty and unbounded cases)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 tol = 1e-9;
-res = true;
+res = true(0);
 
-a = interval([-5.0; -4.0; -3; 0; 0; 5], [-2; 0.0; 2.0; 0; 5; 8]);
-c = +a;
+% empty
+I = interval.empty(2);
+I_uplus = +I;
+res(end+1,1) = representsa(I_uplus,'emptySet');
 
-if abs( infimum(c(1,1)) + 5.0 ) > tol || abs( supremum(c(1,1)) + 2.0 ) > tol
-	res = false;
-	return;
-end
+% bounded
+I = interval([-5; -4; -3; 0; 0; 5], [-2; 0; 2; 0; 5; 8]);
+I_uplus = +I;
+res(end+1,1) = isequal(I_uplus,I,tol);
 
-if abs( infimum(c(2,1)) + 4.0 ) > tol || abs( supremum(c(2,1)) + 0.0 ) > tol
-	res = false;
-	return;
-end
+% unbounded
+I = interval([-Inf;2],[1;Inf]);
+I_uplus = +I;
+res(end+1,1) = isequal(I_uplus,I,tol);
 
-if abs( infimum(c(3,1)) + 3.0 ) > tol || abs( supremum(c(3,1)) - 2.0 ) > tol
-	res = false;
-	return;
-end
 
-if abs( infimum(c(4,1)) - 0.0 ) > tol || abs( supremum(c(4,1)) - 0.0 ) > tol
-	res = false;
-	return;
-end
+% combine results
+res = all(res);
 
-if abs( infimum(c(5,1)) - 0.0 ) > tol || abs( supremum(c(5,1)) - 5.0 ) > tol
-	res = false;
-	return;
-end
-
-if abs( infimum(c(6,1)) - 5.0 ) > tol || abs( supremum(c(6,1)) - 8.0 ) > tol
-	res = false;
-	return;
-end
-
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

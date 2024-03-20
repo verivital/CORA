@@ -1,7 +1,7 @@
 function res = test_capsule_dim
 % test_capsule_dim - unit test function of dim
 %
-% Syntax:  
+% Syntax:
 %    res = test_capsule_dim
 %
 % Inputs:
@@ -16,41 +16,29 @@ function res = test_capsule_dim
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      27-September-2019
-% Last update:  12-March-2021 (MW, add empty case)
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       27-September-2019
+% Last update:   12-March-2021 (MW, add empty case)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-% 1. Empty case
-C = capsule();
+res = true(0);
 
-% compute dimension
-C_dim = dim(C);
+% empty case
+n = 2;
+C = capsule.empty(n);
+res(end+1,1) = dim(C) == n;
 
-% true solution
-true_dim = 0;
-
-% compare results
-res_empty = C_dim == true_dim;
-
-
-% 2. Analytical
-% instantiate capsule
-C = capsule([1;1],[1;1],0.5);
-
-% compute dimension
-C_dim = dim(C);
-
-% true solution
-true_dim = 2;
-
-% compare results
-res_analytical = C_dim == true_dim;
+% 2D capsule
+c = [1;1]; g = [1;1]; r = 0.5;
+C = capsule(c);
+res(end+1,1) = dim(C) == 2;
+C = capsule(c,g,r);
+res(end+1,1) = dim(C) == 2;
 
 
-% combine tests
-res = res_empty && res_analytical;
+% combine results
+res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

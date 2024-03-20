@@ -2,7 +2,7 @@ function res = zonotopeNorm(Z,p)
 % zonotopeNorm - computes the norm of the point p w.r.t. the zonotope-norm
 %    induced by the zonotope Z (see [1, Definition 4])
 %
-% Syntax:  
+% Syntax:
 %    res = zonotopeNorm(Z,p)
 %
 % Inputs:
@@ -36,21 +36,37 @@ function res = zonotopeNorm(Z,p)
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: ---
+% See also: none
 
-% Author:       Adrian Kulmburg
-% Written:      14-May-2021
-% Last update:  ---
-% Last revision:---
+% Authors:       Adrian Kulmburg
+% Written:       14-May-2021
+% Last update:   16-January-2024 (MW, handle edge cases)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % check input arguments
-inputArgsCheck({{Z,'att','zonotope','nonempty'};
-                {p,'att','numeric','column'}});
+inputArgsCheck({{Z,'att','zonotope'};
+                {p,'att','numeric'}});
+
+% empty set
+if representsa_(Z,'emptySet',eps)
+    if isempty(p)
+        res = 0; return
+    else
+        res = Inf; return
+    end
+end
 
 % Retrieve generator-representation of Z
 G = Z.generators;
+if isempty(G)
+    if ~any(p)
+        res = 0; return
+    else
+        res = Inf; return
+    end
+end
 
 % Retrieve dimensions of the generator matrix of Z
 n = size(G, 1);
@@ -89,4 +105,4 @@ elseif exitflag ~= 1
     throw(CORAerror('CORA:solverIssue'));
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

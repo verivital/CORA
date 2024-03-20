@@ -1,7 +1,7 @@
 function [obj,options] = inputSolution(obj,options)
 % inputSolution - computes the bloating due to the input 
 %
-% Syntax:  
+% Syntax:
 %    [obj] = inputSolution(obj,options)
 %
 % Inputs:
@@ -20,20 +20,20 @@ function [obj,options] = inputSolution(obj,options)
 %
 % See also: ---
 
-% Author:       Matthias Althoff
-% Written:      08-May-2007 
-% Last update:  26-October-2007
-%               07-October-2008
-%               27-April-2009
-%               22-July-2009
-%               10-August-2010
-%               15-June-2016
-%               25-July-2016 (intervalhull replaced by interval)
-%               01-November-2017 (consideration of constant input c)
-%               16-November-2021 (disturbance set W)
-% Last revision:---
+% Authors:       Matthias Althoff
+% Written:       08-May-2007 
+% Last update:   26-October-2007
+%                07-October-2008
+%                27-April-2009
+%                22-July-2009
+%                10-August-2010
+%                15-June-2016
+%                25-July-2016 (intervalhull replaced by interval)
+%                01-November-2017 (consideration of constant input c)
+%                16-November-2021 (disturbance set W)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % possible effect of disturbance: total input is then
 %   V = obj.B*options.U + (options.W - center(options.W))
@@ -50,20 +50,15 @@ end
 V = obj.B*options.U + W;
 
 % do we have a time-varying input solution?
-options.isRV = ~isZero(V);
+options.isRV = ~representsa_(V,'origin',eps);
 
-% compute vTrans 
-vTrans = obj.B*options.uTrans + Wcenter;
-% consider constant input
-if ~isempty(obj.c)
-    vTrans = vTrans + obj.c;
-end
+% compute vTrans (including disturbance center and constant offset)
+vTrans = obj.B*options.uTrans + Wcenter + obj.c;
 
-A = obj.A;
 Apower = obj.taylor.powers;
 E = obj.taylor.error;
 r = options.timeStep;
-n = length(A);
+n = obj.dim;
 factors = options.factor;
 
 if options.isRV
@@ -82,7 +77,7 @@ if options.isRV
         inputSolV = Vsum+E*r*V;
     catch
         % for all set representations, which currently do not support the
-        % multiplication of an interval matrix with itself
+        % (left-)multiplication with an interval matrix (in this case: E)
         inputSolV = Vsum+E*r*interval(V);
     end
     
@@ -94,6 +89,7 @@ else
         %compute sum
         Asum = Asum+Apower{i}*factors(i+1);
     end
+    inputSolV = zeros(n,1);
     
 end
 
@@ -114,18 +110,9 @@ end
 
 %write to object structure
 obj.taylor.V = V;
-if options.isRV && ~isemptyobject(inputSolV)
-    obj.taylor.RV = inputSolV;
-else
-    obj.taylor.RV = zeros(obj.dim,1);
-end
-
-if ~isemptyobject(inputSolVtrans)
-    obj.taylor.Rtrans = inputSolVtrans;
-else
-    obj.taylor.Rtrans = zeros(obj.dim,1);
-end
+obj.taylor.RV = inputSolV;
+obj.taylor.Rtrans = inputSolVtrans;
 obj.taylor.inputCorr = inputCorr;
 obj.taylor.eAtInt = eAtInt;
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

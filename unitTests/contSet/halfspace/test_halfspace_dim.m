@@ -1,7 +1,7 @@
 function res = test_halfspace_dim
 % test_halfspace_dim - unit test function of dim
 %
-% Syntax:  
+% Syntax:
 %    res = test_halfspace_dim
 %
 % Inputs:
@@ -16,35 +16,30 @@ function res = test_halfspace_dim
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      27-September-2019
-% Last update:  16-March-2021 (MW, add empty case)
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       27-September-2019
+% Last update:   16-March-2021 (MW, add empty case)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-% 1. empty case
-h = halfspace();
-res_empty = true;
-if dim(h) ~= 0
-    res_empty = false;
-end
+res = true(0);
 
-% 2. analytical case
-% instantiate halfspace
-h = halfspace([1;1],0.5);
+% empty case
+n = 2;
+hs = halfspace.empty(n);
+res(end+1,1) = dim(hs) == n;
 
-% compute dimension of halfspace
-h_dim = dim(h);
+% fullspace case
+n = 3;
+hs = halfspace.Inf(n);
+res(end+1,1) = dim(hs) == n;
 
-% true solution
-true_dim = 2;
+% 2D halfspace
+hs = halfspace([1;1],0.5);
+res(end+1,1) = dim(hs) == 2;
 
-% compare results
-res_analytical = h_dim == true_dim;
+% combine results
+res = all(res);
 
-
-% combine tests
-res = res_empty && res_analytical;
-
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

@@ -1,7 +1,7 @@
 function S = times(factor1,factor2)
 % times - Overloaded '.*' operator for the multiplication with a contSet
 %
-% Syntax:  
+% Syntax:
 %    E = times(A,E)
 %
 % Inputs:
@@ -15,20 +15,20 @@ function S = times(factor1,factor2)
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: mtimes
+% See also: contSet/mtimes
 
-% Author:       Tobias Ladner
-% Written:      06-April-2023 
-% Last update:  ---
-% Last revision:---
+% Authors:       Tobias Ladner
+% Written:       06-April-2023 
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 [S,A] = findClassArg(factor1, factor2, 'contSet');
 
 % parse input
 if ~isnumeric(A)
-    throw(CORAerror('CORA:noops', class(S), class(A)))
+    throw(CORAerror('CORA:noops', S, A))
 elseif ~isvector(A) && ~isempty(A)
     throw(CORAerror('CORA:notSupported', 'Multiplied vector has to be a column vector.'))
 end
@@ -37,4 +37,4 @@ end
 A = diag(A);
 S = A * S;
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

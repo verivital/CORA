@@ -1,7 +1,7 @@
 function res = test_conZonotope_isFullDim
 % test_conZonotope_isFullDim - unit test function of isFullDim
 %
-% Syntax:  
+% Syntax:
 %    res = test_conZonotope_isFullDim
 %
 % Inputs:
@@ -16,16 +16,18 @@ function res = test_conZonotope_isFullDim
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      21-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       21-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
+
+res = true(0);
 
 % check empty conZonotope object
-cZ = conZonotope();
-res = ~isFullDim(cZ);
+cZ = conZonotope.empty(2);
+res(end+1,1) = ~isFullDim(cZ);
 
 % constrained zonotope
 Z = [0 3 0 1;0 0 2 1];
@@ -36,4 +38,4 @@ res(end+1,1) = isFullDim(cZ);
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

@@ -2,7 +2,7 @@ function R = guardIntersect_hyperplaneMap(loc,guard,R0,options)
 % guardIntersect_hyperplaneMap - implementation of the guard mapping
 %    approach described in [1]
 %
-% Syntax:  
+% Syntax:
 %    R = guardIntersect_hyperplaneMap(loc,guard,R0,options)
 %
 % Inputs:
@@ -20,12 +20,12 @@ function R = guardIntersect_hyperplaneMap(loc,guard,R0,options)
 %   [2] M. Althoff et al. "Reachability Analysis of Nonlinear Systems with 
 %       Uncertain Parameters using Conservative Linearization"
 
-% Author:       Matthias Althoff, Niklas Kochdumper
-% Written:      13-December-2019
-% Last update:  ---
-% Last revision:---
+% Authors:       Matthias Althoff, Niklas Kochdumper
+% Written:       13-December-2019
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
     % refine the time interval at which the guard set is hit
     [R0,tmin,tmax,Rcont] = aux_refinedIntersectionTime(loc,guard,R0,options); 
@@ -69,17 +69,17 @@ function R = guardIntersect_hyperplaneMap(loc,guard,R0,options)
 end
 
 
-% Auxiliary Functions -----------------------------------------------------
+% Auxiliary functions -----------------------------------------------------
 
 function [Rmin,tmin,tmax,int] = aux_refinedIntersectionTime(loc,guard,R0,options)
 % this function computes the reachable set with a smaller times step to
 % refine the time at which the reachable set intersects the guard set
 
     % init halfspace representing the region inside the invariant
-    hs = halfspace(guard.h.c,guard.h.d);
+    hs = halfspace(guard.a',guard.b);
     
     if ~contains_(hs,center(R0))
-        hs = halfspace(-guard.h.c,-guard.h.d);
+        hs = halfspace(-guard.a',-guard.b);
     end
     
     spec = specification(hs,'invariant');
@@ -244,7 +244,7 @@ function R = aux_mappedSetError(guard,R0,A,b,err)
 % compute the second part R_he of the mapped set (see (15) in [1])
 
     % obtain object properties
-    n = guard.h.c;                    % hyperplane normal vector
+    n = guard.a';                    % hyperplane normal vector
     
     % interval enclosure of the fraction 
     temp = A*R0 + b;
@@ -293,8 +293,8 @@ function [k,L,Q,phi] = aux_taylorSeriesParam(guard,A,b,R0)
 % according to Prop. 3 in [1]
 
     % obtain object properties
-    n = guard.h.c;                    % hyperplane normal vector
-    d = guard.h.d;                    % hyperplane offset
+    n = guard.a';                    % hyperplane normal vector
+    d = guard.b;                     % hyperplane offset
 
     % auxiliary variables (see Prop. 2 in [1])
     x0 = center(R0);
@@ -320,8 +320,8 @@ function [k,L,Q,phi] = aux_taylorSeriesParam(guard,A,b,R0)
     Lambda_zono = n'*(A*R0 + b);
     Theta_aux_zono = (-1)*(d + (-1)* n'*R0)*Upsilon;
     
-    Theta_aux_mat = Theta_aux_zono.Z;
-    Lambda_mat = Lambda_zono.Z;
+    Theta_aux_mat = [Theta_aux_zono.c,Theta_aux_zono.G];
+    Lambda_mat = [Lambda_zono.c,Lambda_zono.G];
     
     Theta_mat = -n*Lambda_mat+Theta_aux_mat;
 
@@ -336,7 +336,7 @@ function [k,L,Q,phi] = aux_taylorSeriesParam(guard,A,b,R0)
     % quadratic map Q(i,l,m) (see Prop. 3 in [1])
     c = center(A*R0 + b);
     temp = A*R0 + b;
-    G = temp.Z(:,2:end);
+    G = temp.G;
     gens = length(G(1,:));
     
     Q = cell(length(b),1);
@@ -370,4 +370,4 @@ function [k,L,Q,phi] = aux_taylorSeriesParam(guard,A,b,R0)
     end
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

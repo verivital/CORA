@@ -40,6 +40,36 @@
      ]
   },
 
+  "contSet.representsa":
+  {
+     "inputs":
+     [
+        {"name":"obj", "kind":"required", "type":["contSet"], "purpose":"contSet"},
+        {"name":"type", "kind":"required", "type":["char","choices={'capsule','conPolyZono','conHyperplane','conZonotope','ellipsoid','halfspace','interval','levelSet','polytope','polyZonotope','probZonotope','zonoBundle','zonotope','origin','point','hyperplane','emptySet','fullspace'}"],"purpose":"type"},
+        {"name":"tol", "kind":"ordered", "type":["numeric"],"purpose":"tolerance"},
+        {"name":"varargin", "kind":"ordered","purpose":"varargin"}
+     ],
+     "outputs": [
+         {"name":"res", "type":"logical"},
+         {"name":"S", "type":"contSet"}
+     ]
+  },
+
+  "contSet.representsa_":
+  {
+     "inputs":
+     [
+        {"name":"obj", "kind":"required", "type":["contSet"], "purpose":"contSet"},
+        {"name":"type", "kind":"required", "type":["char","choices={'capsule','conPolyZono','conHyperplane','conZonotope','ellipsoid','halfspace','interval','levelSet','polytope','polyZonotope','probZonotope','zonoBundle','zonotope','origin','point','hyperplane','emptySet','fullspace'}"],"purpose":"type"},
+        {"name":"tol", "kind":"ordered", "type":["numeric"],"purpose":"tolerance"},
+        {"name":"varargin", "kind":"ordered","purpose":"varargin"}
+     ],
+     "outputs": [
+         {"name":"res", "type":"logical"},
+         {"name":"S", "type":"contSet"}
+     ]
+  },
+
   "_comment": "capsule --------------------------------------------------", 
   "capsule.generateRandom":
   {
@@ -51,6 +81,22 @@
      ],
      "outputs": [
          {"name":"C", "type":"capsule"}
+     ]
+  },
+
+  "_comment": "conHyperplane --------------------------------------------", 
+  "conHyperplane.generateRandom":
+  {
+     "inputs":
+     [
+        {"name":"Dimension", "kind":"namevalue", "type":["numeric"],"purpose":"dimension"},
+        {"name":"NormalVector", "kind":"namevalue", "type":["numeric"],"purpose":"normal vector of halfspace"},
+        {"name":"Offset", "kind":"namevalue", "type":["numeric"],"purpose":"offset of halfspace"},
+        {"name":"ConstraintMatrix", "kind":"namevalue", "type":["numeric"],"purpose":"constraint matrix"},
+        {"name":"ConstraintVector", "kind":"namevalue", "type":["numeric"],"purpose":"constraint vector"}
+     ],
+     "outputs": [
+         {"name":"hyp", "type":"conHyperplane"}
      ]
   },
 
@@ -96,6 +142,30 @@
      ],
      "outputs": [
          {"name":"E", "type":"ellipsoid"}
+     ]
+  },
+
+  "_comment": "emptySet -------------------------------------------------", 
+  "emptySet.generateRandom":
+  {
+     "inputs":
+     [
+        {"name":"Dimension", "kind":"namevalue", "type":["numeric"],"purpose":"dimension"}
+     ],
+     "outputs": [
+         {"name":"O", "type":"emptySet"}
+     ]
+  },
+
+  "_comment": "fullspace ------------------------------------------------", 
+  "fullspace.generateRandom":
+  {
+     "inputs":
+     [
+        {"name":"Dimension", "kind":"namevalue", "type":["numeric"],"purpose":"dimension"}
+     ],
+     "outputs": [
+         {"name":"fs", "type":"fullspace"}
      ]
   },
 
@@ -165,6 +235,18 @@
      ],
      "outputs": [
          {"name":"pZ", "type":"polyZonotope"}
+     ]
+  },
+
+  "_comment": "taylm ----------------------------------------------------", 
+  "taylm.generateRandom":
+  {
+     "inputs":
+     [
+        {"name":"Dimension", "kind":"namevalue", "type":["numeric"],"purpose":"dimension"}
+     ],
+     "outputs": [
+         {"name":"tay", "type":"taylm"}
      ]
   },
 

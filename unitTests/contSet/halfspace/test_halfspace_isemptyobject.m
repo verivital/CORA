@@ -1,7 +1,7 @@
 function res = test_halfspace_isemptyobject
 % test_halfspace_isemptyobject - unit test function of isemptyobject
 %
-% Syntax:  
+% Syntax:
 %    res = test_halfspace_isemptyobject
 %
 % Inputs:
@@ -16,21 +16,26 @@ function res = test_halfspace_isemptyobject
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      03-June-2022
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       03-June-2022
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-% instantiate halfspaces
-hs1 = halfspace();
+res = true(0);
 
+% empty halfspace
+hs = halfspace.empty(2);
+res(end+1,1) = ~isemptyobject(hs);
+
+% 3D halfspace
 a = [3; 2; -1];
 b = 0.5;
-hs2 = halfspace(a,b);
+hs = halfspace(a,b);
+res(end+1,1) = ~isemptyobject(hs);
 
-% check results
-res = isemptyobject(hs1) && ~isemptyobject(hs2);
+% combine results
+res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

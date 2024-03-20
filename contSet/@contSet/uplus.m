@@ -9,7 +9,7 @@ function S = uplus(S)
 %    S - contSet object
 %
 % Outputs:
-%    S
+%    S - contSet object
 %
 % Other m-files required: none
 % Subfunctions: none
@@ -17,11 +17,13 @@ function S = uplus(S)
 %
 % See also: -
 
-% Author:       Tobias Ladner
-% Written:      06-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Tobias Ladner
+% Written:       06-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-%------------- END OF CODE --------------
+% S = +S
+
+% ------------------------------ END OF CODE ------------------------------

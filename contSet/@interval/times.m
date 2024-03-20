@@ -1,7 +1,7 @@
 function res = times(factor1,factor2)
 % times - Overloaded '.*' operator for intervals
 %
-% Syntax:  
+% Syntax:
 %    res = times(factor1,factor2)
 %
 % Inputs:
@@ -22,29 +22,41 @@ function res = times(factor1,factor2)
 %
 % See also: mtimes
 
-% Author:       Matthias Althoff
-% Written:      19-June-2015
-% Last update:  13-January-2016 (DG)
-%               04-April-2023 (TL: minor optimizations)
-% Last revision:---
+% Authors:       Matthias Althoff
+% Written:       19-June-2015
+% Last update:   13-January-2016 (DG)
+%                04-April-2023 (TL, minor optimizations)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % an interval * a number
 if isa(factor1, 'interval') && ~isa(factor2, 'interval')
+    if isscalar(factor2)
+        % use mtimes (considers scalar case explicitly)
+        res = factor1 * factor2;
+        return
+    end
+
     resInf = factor1.inf .* factor2;
     resSup = factor1.sup .* factor2;
 
-    res = interval();
+    res = factor1;
     res.inf = min(resInf, resSup);
     res.sup = max(resInf, resSup);
     
 % a number * an interval
 elseif ~isa(factor1, 'interval') && isa(factor2, 'interval')
+    if isscalar(factor1)
+        % use mtimes (considers scalar case explicitly)
+        res = factor1 * factor2;
+        return
+    end
+    
     resInf = factor2.inf .* factor1;
     resSup = factor2.sup .* factor1;
     
-    res = interval();
+    res = factor2;
     res.inf = min(resInf, resSup);
     res.sup = max(resInf, resSup);
     
@@ -58,9 +70,9 @@ else
     res4 = factor1.sup .* factor2.sup;
 
     % to find min and max
-    res = interval();
+    res = factor1;
     res.inf = min(res1,min(res2, min(res3,res4)));
     res.sup = max(res1,max(res2, max(res3,res4)));    
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

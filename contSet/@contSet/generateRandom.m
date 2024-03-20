@@ -1,7 +1,7 @@
 function S = generateRandom(varargin)
 % generateRandom - Generates a random contSet
 %
-% Syntax:  
+% Syntax:
 %    S = contSet.generateRandom()
 %    S = contSet.generateRandom('Dimension',n)
 %    S = contSet.generateRandom({@interval, @zonotope}, ...)
@@ -15,7 +15,7 @@ function S = generateRandom(varargin)
 % Outputs:
 %    S - contSet
 %
-% Example: 
+% Example:
 %    S = contSet.generateRandom('Dimension',2);
 %    plot(S);
 %
@@ -25,47 +25,63 @@ function S = generateRandom(varargin)
 %
 % See also: -
 
-% Author:       Tobias Ladner
-% Written:      05-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Tobias Ladner
+% Written:       05-April-2023
+% Last update:   09-January-2024 (changed admissibleSets to cell arrays of strings)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % parse input
-if nargin < 1 || ~iscell(varargin{1})
-    admissibleSets = {
-        % @affine; ...
-        @capsule; ...
-        @conPolyZono; ...
-        % @conHyperplane, ...
-        @conZonotope; ...
-        @ellipsoid; ...
-        @halfspace; ...
-        @interval; ...
-        % @levelset; ...
-        @mptPolytope; ...
-        @polyZonotope; ...
-        % @probZonotope; ...
-        @zonoBundle; ...
-        @zonotope; ...
-        % @zoo; ...
-    };
-else
-    admissibleSets = varargin{1};
-    varargin = varargin(2:end);
-end
+[admissibleSets,varargin] = aux_parseInput(varargin);
 
-if CHECKS_ENABLED
-    inputArgsCheck({{admissibleSets,'att','cell'}})
-    if ~all(cellfun(@(setHandle) isa(setHandle, 'function_handle'),admissibleSets))
-        throw(CORAerror("CORA:wrongValue", "first", ...
-            ['Admissible sets should be a cell array of contSet function handles, ' ...
-            'for which generateRandom can be called.']))
-    end
-end
-
+% randomly select set
 set = admissibleSets{randi(length(admissibleSets))};
-S = set().generateRandom(varargin{:});
 
-%------------- END OF CODE --------------
+% generate random set
+S = feval(sprintf('%s.generateRandom',set),varargin{:});
+
+end
+
+
+% Auxiliary functions -----------------------------------------------------
+
+function [admissibleSets,args] = aux_parseInput(args)
+    
+    % parse input
+    if isempty(args) || ~iscell(args{1})
+        admissibleSets = {
+            'capsule'; ...
+            'conPolyZono'; ...
+            % 'conHyperplane'; ...
+            'conZonotope'; ...
+            'ellipsoid'; ...
+            'emptySet'; ...
+            'fullspace'; ...
+            'halfspace'; ...
+            'interval'; ...
+            'levelSet'; ...
+            'polytope'; ...
+            'polyZonotope'; ...
+            'probZonotope'; ...
+            'zonoBundle'; ...
+            'zonotope'; ...
+            };
+    else
+        admissibleSets = args{1};
+        args = args(2:end);
+    end
+    
+    % parse input
+    if CHECKS_ENABLED
+        inputArgsCheck({{admissibleSets, 'att', 'cell'}})
+        if ~all(cellfun(@(set) ischar(set) || isstring(set), admissibleSets))
+            throw(CORAerror("CORA:wrongValue", "first", ...
+                ['Admissible sets should be a cell array of contSet strings, ', ...
+                'for which generateRandom can be called.']))
+        end
+    end
+
+end
+
+% ------------------------------ END OF CODE ------------------------------

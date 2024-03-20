@@ -1,7 +1,7 @@
 function res = test_capsule_display
 % test_capsule_display - unit test function of display
 %
-% Syntax:  
+% Syntax:
 %    res = test_capsule_display
 %
 % Inputs:
@@ -16,17 +16,18 @@ function res = test_capsule_display
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      24-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       24-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 res = true;
 
 % empty capsule
-C = capsule()
+n = 2;
+C = capsule.empty(n)
 
 % set center, generator, and radius
 c = [2; 0];
@@ -42,4 +43,4 @@ C = capsule(c,g)
 % center, generator, and radius
 C = capsule(c,g,r)
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

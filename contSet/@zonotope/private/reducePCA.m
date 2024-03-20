@@ -1,7 +1,7 @@
 function Zred = reducePCA(Z,order)
 % reducePCA - apply principal component analysis
 %
-% Syntax:  
+% Syntax:
 %    [Zred,t]=reducePCA(Z)
 %
 % Inputs:
@@ -17,12 +17,13 @@ function Zred = reducePCA(Z,order)
 %
 % See also: 
 
-% Author:       Matthias Althoff
-% Written:      18-October-2013
-% Last update:  11-October-2017
-% Last revision:---
+% Authors:       Matthias Althoff
+% Written:       18-October-2013
+% Last update:   11-October-2017
+%                31-January-2024 (TL, V has already zero mean)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % initialize Z_red
 Zred=Z;
@@ -32,23 +33,16 @@ Zred=Z;
 
 if ~isempty(Gred)
     %obtain matrix of points from generator matrix
-    V = [Gred,-Gred];
-
-    %compute the arithmetic mean of the vertices
-    mean=sum(V,2)/length(V(1,:));
-
-    %obtain sampling matrix
-    translation=mean*ones(1,length(V(1,:)));
-    sampleMatrix=V-translation;
+    V = [Gred,-Gred]; % has zero mean
 
     %compute the covariance matrix
-    C=cov(sampleMatrix');
+    C=cov(V');
 
     %singular value decomposition
     [U,~,~] = svd(C);
 
     % map generators
-    Gtrans = U.'*Gred;
+    Gtrans = U'*Gred;
 
     % box generators
     Gbox=diag(sum(abs(Gtrans),2));
@@ -58,6 +52,7 @@ if ~isempty(Gred)
 end
 
 %build reduced zonotope
-Zred.Z=[center,Gunred,Gred];
+Zred.c = center;
+Zred.G = [Gunred,Gred];
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

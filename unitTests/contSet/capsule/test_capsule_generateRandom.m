@@ -1,7 +1,7 @@
 function res = test_capsule_generateRandom
 % test_capsule_generateRandom - unit test function of generateRandom
 %
-% Syntax:  
+% Syntax:
 %    res = test_capsule_generateRandom
 %
 % Inputs:
@@ -16,12 +16,14 @@ function res = test_capsule_generateRandom
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      27-September-2019
-% Last update:  19-May-2022 (name-value pair syntax)
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       27-September-2019
+% Last update:   19-May-2022 (name-value pair syntax)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
+
+res = true(0);
 
 % empty call
 C = capsule.generateRandom();
@@ -33,7 +35,7 @@ r = 3.5;
 
 % only dimension
 C = capsule.generateRandom('Dimension',n);
-res = dim(C) == n;
+res(end+1,1) = dim(C) == n;
 
 % only center
 C = capsule.generateRandom('Center',c);
@@ -63,4 +65,4 @@ res(end+1,1) = dim(C) == n && compareMatrices(C.c,c) && withinTol(C.r,r);
 % unify results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

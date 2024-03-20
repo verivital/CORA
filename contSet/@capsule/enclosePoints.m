@@ -1,7 +1,7 @@
 function C = enclosePoints(points)
 % enclosePoints - encloses a point cloud by a capsule
 %
-% Syntax:  
+% Syntax:
 %    C = enclosePoints(points)
 %
 % Inputs:
@@ -25,19 +25,19 @@ function C = enclosePoints(points)
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      23-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       23-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % dimension of resulting object
 [n,nrPoints] = size(points);
 
 % special handling if no or only one point given
 if nrPoints == 0
-    C = capsule();
+    C = capsule.empty(n);
     return
 elseif nrPoints == 1
     C = capsule(points,zeros(n,1),0);
@@ -78,4 +78,4 @@ r = max(vecnorm(((points-c)' * g_unit)' .* g_unit));
 % instantiate capsule
 C = capsule(c,g,r);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

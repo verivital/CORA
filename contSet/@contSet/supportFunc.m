@@ -1,6 +1,8 @@
 function varargout = supportFunc(S,dir,varargin)
-% supportFunc - evaluates the support function of a set along a given
-%    direction
+% supportFunc - evaluates the support function of a set along a given direction
+%
+% Description:
+%    computes \max_{x \in \mathcal{S}}  l^T * x
 %
 % Syntax:
 %    [val,x,fac] = supportFunc(S)
@@ -33,12 +35,12 @@ function varargout = supportFunc(S,dir,varargin)
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      18-August-2022
-% Last update:  23-November-2022 (MW, add classname as input argument)
-% Last revision:27-March-2023 (MW, restructure relation to subclass)
+% Authors:       Mark Wetzlinger
+% Written:       18-August-2022
+% Last update:   23-November-2022 (MW, add classname as input argument)
+% Last revision: 27-March-2023 (MW, restructure relation to subclass)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % check number of input arguments
 if nargin < 2
@@ -83,24 +85,15 @@ else
     
 end
 
-
-% empty set case
-% if isemptyobject(S)
-%     res = true;
-%     if strcmp(type,'upper')
-%         vars{1} = -Inf;
-%     elseif strcmp(type,'lower')
-%         vars{1} = +Inf;
-%     elseif strcmp(type,'range')
-%         vars{1} = [-Inf,+Inf];
-%     end
-%     return
-%     x = []; fac = [];
-% end
-
 % transpose dir if necessary
 if size(dir,1) == 1 && size(dir,2) > 1
     dir = dir';
+end
+
+% ensure that dimension of direction fits dimension of the set
+if dim(S) ~= length(dir)
+    throw(CORAerror('CORA:wrongValue','second',...
+        [num2str(dim(S)) '-dimensional column vector.']));
 end
 
 % result has to be computed in calling function
@@ -109,7 +102,7 @@ try
     [varargout{:}] = supportFunc_(S,dir,type,method,maxOrderOrSplits,tol);
 catch ME
     % empty set case
-    if isemptyobject(S) || isempty(S)
+    if representsa_(S,'emptySet',eps)
         if strcmp(type,'upper')
             varargout{1} = -Inf;
         elseif strcmp(type,'lower')
@@ -125,4 +118,4 @@ catch ME
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

@@ -18,19 +18,18 @@ function res = test_conHyperplane_plotRandPoint
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      11-December-2022
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       11-December-2022
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 res = true;
 
 % instantiate constrained hyperplane
-c = [1, 1, 1];
-d = 2;
-hyp = conHyperplane(c, d);
+a = [1, 1, 1]; b = 2;
+hyp = conHyperplane(a, b);
 
 try
     % try all variations in plotting
@@ -58,4 +57,4 @@ catch ME
     res = false;
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

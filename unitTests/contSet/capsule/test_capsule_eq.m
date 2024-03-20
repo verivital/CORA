@@ -1,7 +1,7 @@
 function res = test_capsule_eq
 % test_capsule_eq - unit test function of '=='
 %
-% Syntax:  
+% Syntax:
 %    res = test_capsule_eq
 %
 % Inputs:
@@ -16,16 +16,20 @@ function res = test_capsule_eq
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      24-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       24-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
+
+res = true(0);
 
 % empty capsule
-C = capsule();
-res = C == C;
+C1 = capsule.empty(1);
+C2 = capsule.empty(2);
+res(end+1,1) = C1 == C1;
+res(end+1,1) = ~(C1 == C2);
 
 % tolerance
 tol = 1e-9;
@@ -48,4 +52,4 @@ res(end+1,1) = ~eq(C,C_red);
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

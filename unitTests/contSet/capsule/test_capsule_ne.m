@@ -1,7 +1,7 @@
 function res = test_capsule_ne
 % test_capsule_ne - unit test function of '~='
 %
-% Syntax:  
+% Syntax:
 %    res = test_capsule_ne
 %
 % Inputs:
@@ -16,19 +16,19 @@ function res = test_capsule_ne
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      24-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       24-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
+
+res = true(0);
+tol = 1e-9;
 
 % empty capsule
-C = capsule();
-res = ~(C ~= C);
-
-% tolerance
-tol = 1e-9;
+C = capsule.empty(2);
+res(end+1,1) = ~(C ~= C);
 
 % define properties
 c = [2; 0; -1];
@@ -48,4 +48,4 @@ res(end+1,1) = C ~= C_red;
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

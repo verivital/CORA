@@ -1,7 +1,7 @@
 function res = test_matZonotope_matZonotope
 % test_matZonotope_matZonotope - unit test function for constructor
 % 
-% Syntax:  
+% Syntax:
 %    res = test_matZonotope_matZonotope
 %
 % Inputs:
@@ -14,18 +14,16 @@ function res = test_matZonotope_matZonotope
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: -
+% See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      03-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       03-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-% empty matrix zonotope
-matZ = matZonotope();
-res = isempty(matZ);
+res = true(0);
 
 % only center
 C = 0;
@@ -56,7 +54,7 @@ res(end+1,1) = all(all(withinTol(matZ.center,C))) && ...
 matZ_ = matZonotope(matZ);
 
 % conversion from zonotope: empty, only center, one/multiple generator(s)
-Z = zonotope();
+Z = zonotope.empty(2);
 matZ = matZonotope(Z);
 Z = zonotope([1;2;1]);
 matZ = matZonotope(Z);
@@ -68,4 +66,4 @@ matZ = matZonotope(Z);
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

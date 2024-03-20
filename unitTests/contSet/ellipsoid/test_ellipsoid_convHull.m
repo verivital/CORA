@@ -1,7 +1,7 @@
 function res = test_ellipsoid_convHull
 % test_ellipsoid_convHull - unit test function of convHull
 %
-% Syntax:  
+% Syntax:
 %    res = test_ellipsoid_convHull
 %
 % Inputs:
@@ -14,15 +14,15 @@ function res = test_ellipsoid_convHull
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: -
+% See also: none
 
-% Author:       Victor Gassmann
-% Written:      26-July-2021
-% Last update:  ---
-% Last revision:---
+% Authors:       Victor Gassmann
+% Written:       26-July-2021
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 [~,res] = evalc('test_ellipsoid_or');
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

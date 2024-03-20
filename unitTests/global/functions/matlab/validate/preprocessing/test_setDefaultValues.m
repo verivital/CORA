@@ -1,7 +1,7 @@
 function res = test_setDefaultValues
 % test_setDefaultValues - unit test function for setting of default values
 %
-% Syntax:  
+% Syntax:
 %    res = test_setDefaultValues()
 %
 % Inputs:
@@ -16,16 +16,16 @@ function res = test_setDefaultValues
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      28-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       28-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % some user-provided values and default values
-givenValues = {10,'bbb',polyZonotope()};
-defaultValues = {5,'aaa',zonotope()};
+givenValues = {10,'bbb',polyZonotope.empty(2)};
+defaultValues = {5,'aaa',zonotope.empty(2)};
 
 % no input arguments given
 [val1,val2,val3] = setDefaultValues(defaultValues,{});
@@ -54,4 +54,4 @@ res(end+1,1) = isequal(val3,givenValues{3});
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

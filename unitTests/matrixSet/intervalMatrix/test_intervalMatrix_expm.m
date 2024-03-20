@@ -2,7 +2,7 @@ function res = test_intervalMatrix_expm
 % test_intervalMatrix_expm - unit test function of computing the
 %    exponential matrix
 % 
-% Syntax:  
+% Syntax:
 %    res = test_intervalMatrix_expm
 %
 % Inputs:
@@ -17,12 +17,12 @@ function res = test_intervalMatrix_expm
 %
 % See also: -
 
-% Author:       Matthias Althoff
-% Written:      12-November-2017
-% Last update:  ---
-% Last revision:---
+% Authors:       Matthias Althoff
+% Written:       12-November-2017
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % create interval matrix
 % center
@@ -74,13 +74,4 @@ end
 %result of all enclosure checks
 res = all(res);
 
-% save results if test failed
-if ~res
-     file_name = strcat('test_intervalMatrix_expm_', ...
-                             datestr(now,'mm-dd-yyyy_HH-MM'));
-                  
-     file_path = fullfile(CORAROOT, 'unitTests', 'failedTests', file_name);
-     save(file_path, 'eM');
-end
-
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

@@ -1,7 +1,7 @@
 function res = test_halfspace_halfspace
 % test_halfspace_halfspace - unit test function of halfspace
 %
-% Syntax:  
+% Syntax:
 %    res = test_halfspace_halfspace
 %
 % Inputs:
@@ -16,18 +16,19 @@ function res = test_halfspace_halfspace
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      27-July-2021
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       27-July-2021
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-res = [];
+res = true(0);
 
 % empty halfspace
-hs = halfspace();
-res(end+1,1) = isempty(hs);
+n = 2;
+hs = halfspace.empty(n);
+res(end+1,1) = representsa(hs,'emptySet') && dim(hs) == n;
 
 % random normal vector, offset
 c = [3; 2; -1];
@@ -41,6 +42,10 @@ res(end+1,1) = withinTol(hs.d,d);
 hs = halfspace(c',d);
 res(end+1,1) = compareMatrices(hs.c,c);
 res(end+1,1) = withinTol(hs.d,d);
+
+% combine results
+res = all(res);
+
 
 % wrong initializations
 if CHECKS_ENABLED
@@ -81,7 +86,4 @@ end
 
 end
 
-% combine results
-res = all(res);
-
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

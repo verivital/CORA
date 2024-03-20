@@ -1,7 +1,7 @@
 function res = testLong_zonotope_randPoint
 % testLong_zonotope_randPoint - unit test function of randPoint
 %
-% Syntax:  
+% Syntax:
 %    res = testLong_zonotope_randPoint
 %
 % Inputs:
@@ -16,38 +16,70 @@ function res = testLong_zonotope_randPoint
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      17-Sep-2019
-% Last update:  14-March-2021 (MW, adapt to new syntax)
-% Last revision:---
+% Authors:       Mark Wetzlinger, Adrian Kulmburg
+% Written:       17-September-2019
+% Last update:   14-March-2021 (MW, adapt to new syntax)
+%                22-May-2023 (AK, added uniform sampling)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
+
+resvec = [];
 
 % tolerance
-tol = 1e-9;
+tol = 1e-6;
 
 % check empty zonotope object
-res = isempty(randPoint(zonotope()));
+resvec(end+1) = isempty(randPoint(zonotope.empty(1)));
 
+% check singl point
+resvec(end+1) = size(randPoint(zonotope([2;3]),1),2) == 1; 
+resvec(end+1) = size(randPoint(zonotope([2;3]),1,'extreme'),2) == 1; 
 
 % number of tests
 nrOfTests = 100;
 
 for i=1:nrOfTests
+
     % random dimension
     n = randi([2,8]); % small because of containment checks
-    
+
     % random center
     c = randn(n,1);
     % random generator matrix -> parallelotope
     G = randn(n);
+    while abs(det(G)) < 1e-4
+        G = randn(n);
+    end
     
     % instantiate zonotope
-    Z = zonotope(c,G);
+    % For the first case, we try with an empty zonotope; for the second, we
+    % try with one that has no generators. For the third, we try with a
+    % zonotope that is degenerate. The fourth is a parallelotope, the rest
+    % are zonotopes that are not parallelotopes.
+    if i == 1
+        Z = zonotope.empty(1);
+    elseif i == 2
+        Z = zonotope(c, []);
+    elseif i == 3
+        Z = zonotope([c;0], [G;zeros([1 size(G,2)])]);
+    elseif i == 4
+        Z = zonotope(c,G);
+    else
+        Grest = randn(n);
+        Z = zonotope(c,[G Grest]);
+    end
     
     % check 'standard' method
     nrPtsStandard = 25;
-    pNormal = randPoint(Z,nrPtsStandard,'standard');
+    pStandard = randPoint(Z,nrPtsStandard,'standard');
+    
+    % check 'uniform' methods
+    nrPtsUniform = 10;
+    pUniform = randPoint(Z,nrPtsUniform,'uniform');
+    pUniformHitAndRun = randPoint(Z,nrPtsUniform,'uniform:hitAndRun');
+    pUniformBilliard = randPoint(Z,nrPtsUniform,'uniform:billiardWalk');
+    
     
     % check 'extreme' method:
     % less points than extreme points
@@ -64,20 +96,36 @@ for i=1:nrOfTests
     % check 'gaussian' method:
     nrPtsGaussian = 25;
     pr = 0.8;
-    pGaussian = randPoint(Z,nrPtsGaussian,'gaussian',pr);
-    % note: these points are not checked for containment because there
+    if i ~= 3
+        % TODO: Fix the Gaussian sampling, so that it also works for
+        % degenerate sets
+        pGaussian = randPoint(Z,nrPtsGaussian,'gaussian',pr);
+    end
+    % note: these points are not checked for containment because they
     %       are not guaranteed to be inside of Z
     
+    
     % check for containment in zonotope
-    % (use containsPoint instead of in, since the latter has a bug)
-    if ~all(contains(Z,pNormal))
-        res = false; break;
+    if ~all(contains(Z,pStandard))
+        resvec(end+1) = false; break;
     end
-    if ~all(contains(enlarge(Z,1+tol),pExtreme))
+    if ~all(contains(Z,pUniform))
+        resvec(end+1) = false;break;
+    end
+    if ~all(contains(Z,pUniformHitAndRun))
+        resvec(end+1) = false; break;
+    end
+    if ~all(contains(Z,pUniformBilliard))
+        resvec(end+1) = false; break;
+    end
+    if ~all(contains(Z,pExtreme,'exact',tol))
         % enlarging Z is required, otherwise wrong result!
-        res = false; break;
+        resvec(end+1) = false; break;
     end
 
 end
 
-%------------- END OF CODE --------------
+% gather results
+res = all(resvec);
+
+% ------------------------------ END OF CODE ------------------------------

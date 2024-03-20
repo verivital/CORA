@@ -2,7 +2,7 @@ function display(C)
 % display - Displays the properties of a capsule object (center, generator,
 %    radius) on the command window
 %
-% Syntax:  
+% Syntax:
 %    display(C)
 %
 % Inputs:
@@ -21,39 +21,40 @@ function display(C)
 %
 % See also: none
 
-% Author:       Matthias Althoff
-% Written:      04-March-2019
-% Last update:  02-May-2020 (MW, add empty case)
-% Last revision:---
+% Authors:       Matthias Althoff
+% Written:       04-March-2019
+% Last update:   02-May-2020 (MW, add empty case)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-if isemptyobject(C)
-    
-    dispEmptyObj(C,inputname(1));
-    
-else
-
-    fprintf(newline);
-    disp(inputname(1) + " =");
-    fprintf(newline);
-    
-    % display dimension
-    display@contSet(C);
-    fprintf(newline);
-
-    % display center
-    disp('center: ');
-    disp(C.c);
-
-    % display generator
-    disp('generator: ');
-    disp(C.g); 
-
-    % display radius
-    disp('radius: ');
-    disp(C.r);
-
+% special cases
+if representsa(C,'emptySet')
+    dispEmptySet(C,inputname(1));
+    return
+elseif representsa(C,'fullspace')
+    dispRn(C,inputname(1));
+    return
 end
 
-%------------- END OF CODE --------------
+fprintf(newline);
+disp(inputname(1) + " =");
+fprintf(newline);
+
+% display dimension
+display@contSet(C);
+fprintf(newline);
+
+% display center
+disp('center: ');
+disp(C.c);
+
+% display generator
+disp('generator: ');
+disp(C.g); 
+
+% display radius
+disp('radius: ');
+disp(C.r);
+
+% ------------------------------ END OF CODE ------------------------------

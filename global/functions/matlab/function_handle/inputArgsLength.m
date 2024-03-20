@@ -1,7 +1,7 @@
 function [count,out] = inputArgsLength(f,varargin)
 % inputArgsLength - computes the number of inputs of a function handle
 %
-% Syntax:  
+% Syntax:
 %    [count,out] = inputArgsLength(f)
 %    [count,out] = inputArgsLength(f,inpArgs)
 %
@@ -23,13 +23,13 @@ function [count,out] = inputArgsLength(f,varargin)
 %
 % See also: nonlinearSys
 
-% Author:       Victor Gassmann, Mark Wetzlinger
-% Written:      11-September-2020
-% Last update:  17-June-2022 (MW, extend fast way to case where given
-%                                 inpArgs exceeds nargin to f)
-% Last revision:20-November-2022 (MW, restucture alternative method)
+% Authors:       Victor Gassmann, Mark Wetzlinger
+% Written:       11-September-2020
+% Last update:   17-June-2022 (MW, speed up when inpArgs exceeds nargin to f)
+% Last revision: 20-November-2022 (MW, restucture alternative method)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
+
 
 % parse input arguments: number of input arguments to function handle
 narginf = setDefaultValues({nargin(f)},varargin);
@@ -92,6 +92,8 @@ if narginf == 1
             out = size(output);
             if any(out == 1)
                 out = max(out);
+            else
+                continue
             end
             return
         end
@@ -143,6 +145,8 @@ while true
             out = size(output);
             if any(out == 1)
                 out = max(out);
+            else
+                continue
             end
             return
         catch
@@ -164,4 +168,4 @@ while true
     maxVal = maxVal + 3;
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

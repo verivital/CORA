@@ -1,7 +1,7 @@
 function vol = volume_(I,varargin)
 % volume_ - Computes volume of an interval
 %
-% Syntax:  
+% Syntax:
 %    vol = volume_(I)
 %
 % Inputs:
@@ -18,24 +18,25 @@ function vol = volume_(I,varargin)
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: ---
+% See also: contSet/volume
 
-% Author:       Matthias Althoff
-% Written:      24-July-2016 
-% Last update:  18-August-2022 (MW, include standardized preprocessing)
-% Last revision:27-March-2023 (MW, rename volume_)
+% Authors:       Matthias Althoff
+% Written:       24-July-2016 
+% Last update:   18-August-2022 (MW, include standardized preprocessing)
+%                04-December-2023 (MW, fix degenerate-unbounded case)
+% Last revision: 27-March-2023 (MW, rename volume_)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % compute half of the diameter
 r = rad(I);
 
-if isempty(r)
-    % empty set case: prod([]) = 1, so we need case differentiation
+if isempty(r) || ~all(r)
+    % empty or degenerate
     vol = 0;
 else
     % simple volume formula
-    vol = prod(2*rad(I));
+    vol = prod(2*r);
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

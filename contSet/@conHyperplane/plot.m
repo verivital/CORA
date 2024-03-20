@@ -1,7 +1,7 @@
 function han = plot(hyp,varargin)
 % plot - plots a projection of a constrained hyperplane
 %
-% Syntax:  
+% Syntax:
 %    han = plot(hyp)
 %    han = plot(hyp,dims)
 %    han = plot(hyp,dims,type)
@@ -22,7 +22,7 @@ function han = plot(hyp,varargin)
 %    hyp = conHyperplane(halfspace([1;1],2),C,d);
 % 
 %    figure; hold on; xlim([-4,4]); ylim([-4,4]);
-%    plot(mptPolytope(C,d),[1,2],'g');
+%    plot(polytope(C,d),[1,2],'g');
 %    plot(hyp,[1,2],'r');
 %
 % Other m-files required: none
@@ -31,13 +31,14 @@ function han = plot(hyp,varargin)
 %
 % See also: halfspace/plot
 
-% Author:       Niklas Kochdumper
-% Written:      19-November-2019
-% Last update:  25-May-2022 (TL: 1D Plotting)
-%               05-April-2023 (TL: clean up using plotPolygon)
-% Last revision:12-July-2023 (TL, restructure)
+% Authors:       Niklas Kochdumper
+% Written:       19-November-2019
+% Last update:   25-May-2022 (TL, 1D Plotting)
+%                05-April-2023 (TL, clean up using plotPolygon)
+%                26-July-2023 (TL, getUnboundedAxisLimits)
+% Last revision: 12-July-2023 (TL, restructure)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % 1. parse input arguments
 [hyp, dims, NVpairs] = aux_parseInput(hyp,varargin{:});
@@ -54,6 +55,7 @@ if nargout == 0
 end
 
 end
+
 
 % Auxiliary functions -----------------------------------------------------
 
@@ -79,9 +81,8 @@ end
 function [V,dims] = aux_preprocess(hyp,dims)
     % preprocess for plotting
 
-    % get size of current plot
-    xLim = get(gca,'Xlim');
-    yLim = get(gca,'Ylim');
+    % get limits of current plot
+    [xLim,yLim,zLim] = getUnboundedAxisLimits();
     
     % compute vertices
     if ~isempty(hyp.C)
@@ -98,12 +99,11 @@ function [V,dims] = aux_preprocess(hyp,dims)
         C = [C;eye(2);-eye(2)];
         d = [d;xLim(2);yLim(2);-xLim(1);-yLim(1)];
     else
-        zLim = get(gca,'Zlim');
         C = [C;eye(3);-eye(3)];
         d = [d;xLim(2);yLim(2);zLim(2);-xLim(1);-yLim(1);-zLim(1)];
     end
     
-    V = lcon2vert(C,d,hyp.h.c(dims)',hyp.h.d)';
+    V = lcon2vert(C,d,hyp.a(dims),hyp.b)';
     dims = 1:length(dims);
 end
 
@@ -115,7 +115,7 @@ function han = aux_plotNd(hyp,V,dims,NVpairs)
         
     else % 3d
         % state space transformation
-        B = gramSchmidt(hyp.h.c);
+        B = gramSchmidt(hyp.a');
         vert_ = B'*V;
         ind = convhull(vert_(2:end,:)');
         
@@ -123,4 +123,4 @@ function han = aux_plotNd(hyp,V,dims,NVpairs)
     end
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

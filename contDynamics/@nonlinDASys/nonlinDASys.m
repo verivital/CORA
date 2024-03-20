@@ -44,13 +44,13 @@ classdef nonlinDASys < contDynamics
 %
 % See also: ---
 
-% Author:       Matthias Althoff, Mark Wetzlinger
-% Written:      27-October-2011
-% Last update:  02-February-2021 (MW, add switching between tensor files)
-%               18-November-2022 (MW, add output equation)
-% Last revision:---
+% Authors:       Matthias Althoff, Mark Wetzlinger
+% Written:       27-October-2011
+% Last update:   02-February-2021 (MW, add switching between tensor files)
+%                18-November-2022 (MW, add output equation)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 properties (SetAccess = private, GetAccess = public)
     % dynamic and constraint equations
@@ -144,7 +144,6 @@ methods
     
 end
 end
-
 
 
 % Auxiliary functions -----------------------------------------------------
@@ -263,19 +262,19 @@ function aux_checkInputArgs(name,dynFun,conFun,states,inputs,constraints,outFun,
     % states, inputs, and outputs have to be numeric, scalar integer > 0
     if ~isempty(states)
         inputArgsCheck({{states,'att','numeric',...
-            {'positive','integer','scalar'}}});
+            {'nonnegative','integer','scalar'}}});
     end
     if ~isempty(inputs)
         inputArgsCheck({{inputs,'att','numeric',...
-            {'positive','integer','scalar'}}});
+            {'nonnegative','integer','scalar'}}});
     end
     if ~isempty(constraints)
         inputArgsCheck({{constraints,'att','numeric',...
-            {'positive','integer','scalar'}}});
+            {'nonnegative','integer','scalar'}}});
     end
     if ~isempty(outputs)
         inputArgsCheck({{outputs,'att','numeric',...
-            {'positive','integer','scalar'}}});
+            {'nonnegative','integer','scalar'}}});
     end
 
 end
@@ -306,9 +305,15 @@ function [states,inputs,constraints,outFun,outputs,out_isLinear] = ...
 
     % default output equation and number of outputs (= states)
     if isempty(outFun)
-        outFun = @(x,y,u) eye(states)*x(1:states);
-        outputs = states;
-        out_isLinear = true(outputs,1);
+        if states == 0
+            outFun = @(x,y,u) [];
+            outputs = 0;
+            out_isLinear = [];
+        else
+            outFun = @(x,y,u) eye(states)*x(1:states);
+            outputs = states;
+            out_isLinear = true(outputs,1);
+        end
     else
         try
             [temp,out_out] = inputArgsLength(outFun,3);
@@ -337,4 +342,4 @@ function [states,inputs,constraints,outFun,outputs,out_isLinear] = ...
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

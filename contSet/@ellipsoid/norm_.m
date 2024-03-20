@@ -20,15 +20,15 @@ function val = norm_(E,type,varargin)
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: -
+% See also: contSet/norm
 
-% Author:       Victor Gassmann
-% Written:      20-November-2019
-% Last update:  31-July-2020
-%               04-July-2022 (VG: class array case)
-% Last revision:27-March-2023 (MW, rename norm_)
+% Authors:       Victor Gassmann
+% Written:       20-November-2019
+% Last update:   31-July-2020
+%                04-July-2022 (VG, class array case)
+% Last revision: 27-March-2023 (MW, rename norm_)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % only Euclidean norm implemented
 if ~isnumeric(type) || type ~= 2
@@ -47,8 +47,8 @@ lmax = max(eig(E.Q));
 val = sqrt(lmax);
 
 % check for empty set
-if isnan(val) && isemptyobject(E)
+if isnan(val) && representsa(E,'emptySet',0)
     val = -Inf;
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

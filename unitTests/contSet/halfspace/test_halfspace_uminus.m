@@ -1,7 +1,7 @@
 function res = test_halfspace_uminus
 % test_halfspace_uminus - unit test function of uminus
 %
-% Syntax:  
+% Syntax:
 %    res = test_halfspace_uminus
 %
 % Inputs:
@@ -16,12 +16,12 @@ function res = test_halfspace_uminus
 %
 % See also: -
 
-% Author:       Tobias Ladner
-% Written:      06-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Tobias Ladner
+% Written:       06-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 resvec = true(0);
 
@@ -39,9 +39,9 @@ resvec(end+1) = all(nhs.d == d, 'all');
 resvec(end+1) = isequal(nhs, -1*hs);
 
 % test empty case
-resvec(end+1) = isemptyobject(-halfspace());
+resvec(end+1) = ~isemptyobject(-halfspace.empty(2));
 
 % add results
 res = all(resvec);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

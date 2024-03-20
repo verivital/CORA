@@ -1,7 +1,7 @@
 function res = testLong_capsule_isequal
 % testLong_capsule_isequal - unit test function of isequal
 %
-% Syntax:  
+% Syntax:
 %    res = testLong_capsule_isequal
 %
 % Inputs:
@@ -16,17 +16,14 @@ function res = testLong_capsule_isequal
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      17-Sep-2019
-% Last update:  12-March-2021 (MW, more thorough testing)
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       17-September-2019
+% Last update:   12-March-2021 (MW, more thorough testing)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 res = true;
-
-% empty capsule
-C_empty = capsule();
 
 tol = 1e-9;
 nrOfTests = 1000;
@@ -65,6 +62,7 @@ for i=1:nrOfTests
     end
 
     % ... empty capsule
+    C_empty = capsule.empty(n);
     if isequal(C,C_empty)
         res = false; break;
     end
@@ -79,4 +77,4 @@ for i=1:nrOfTests
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

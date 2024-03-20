@@ -1,7 +1,7 @@
 function res = test_levelSet_levelSet
 % test_levelSet_levelSet - unit test function of constructor
 %
-% Syntax:  
+% Syntax:
 %    res = test_levelSet_levelSet
 %
 % Inputs:
@@ -16,12 +16,12 @@ function res = test_levelSet_levelSet
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      28-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       28-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 res = true;
 
@@ -29,7 +29,7 @@ res = true;
 syms a b x y
 
 % empty level set
-ls = levelSet();
+ls = levelSet.empty(2);
 
 % single equation with different comparison operators
 eq = x^2 + y^2 - 4;
@@ -64,4 +64,4 @@ try
     res = false;
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

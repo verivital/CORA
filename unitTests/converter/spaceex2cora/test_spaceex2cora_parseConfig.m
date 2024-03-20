@@ -11,13 +11,12 @@ function pass = test_spaceex2cora_parseConfig()
 % Outputs:
 %    pass - boolean
 
-% Author:       Maximilian Perschl
-% Written:      23-September-2021
-% Last update:  ---
-% Last revision:---
+% Authors:       Maximilian Perschl
+% Written:       23-September-2021
+% Last update:   ---
+% Last revision: ---
 
-
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 pass = true;
 
@@ -35,18 +34,15 @@ load('hybrid_bball_config.mat','configParams','configSpecs','spec_mapping');
 expectedParams.Tfinal = 40;
 expectedParams.Tsample = 0.1;
 expectedParams.R0 = interval([10;0],[10.2;0]);
-expectedParams.u = interval();
+expectedParams.u = interval.empty(1);
 if ~isequal(expectedParams,configParams)
     pass = false; return
 end
 
 % specifications
-expectedSpecs = specification(halfspace());
-expectedForbiddenSet.A = [-1 0];
-expectedForbiddenSet.b = -100;
-expectedForbiddenSet.Ae = zeros(0,2);
-expectedForbiddenSet.be = [];
-expectedSpecs = add(expectedSpecs,specification(mptPolytope(expectedForbiddenSet)));
+expectedSpecs = specification(halfspace.empty(2));
+A = [-1 0]; b = -100;
+expectedSpecs = add(expectedSpecs,specification(polytope(A,b)));
 % Specifciations are compared for number of specifications, type, and
 % corresponding set
 if length(expectedSpecs) ~= length(configSpecs)
@@ -69,4 +65,4 @@ end
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

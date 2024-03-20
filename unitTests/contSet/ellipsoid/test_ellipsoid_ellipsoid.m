@@ -1,7 +1,7 @@
 function res = test_ellipsoid_ellipsoid
 % test_ellipsoid_ellipsoid - unit test function of ellipsoid
 %
-% Syntax:  
+% Syntax:
 %    res = test_ellipsoid_ellipsoid
 %
 % Inputs:
@@ -14,19 +14,20 @@ function res = test_ellipsoid_ellipsoid
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: -
+% See also: none
 
-% Author:       Victor Gassmann, Mark Wetzlinger
-% Written:      26-July-2021
-% Last update:  ---
-% Last revision:---
+% Authors:       Victor Gassmann, Mark Wetzlinger
+% Written:       26-July-2021
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
+
+res = true;
 
 % empty ellipsoid
-E = ellipsoid();
-res = true;
-if ~isempty(E)
+E = ellipsoid.empty(2);
+if ~representsa_(E,'emptySet',eps)
     res = false;
 end
 
@@ -98,4 +99,4 @@ for i=1:length(E_c)
     
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

@@ -1,7 +1,7 @@
 function res = test_polyZonotope_isemptyobject
 % test_polyZonotope_isemptyobject - unit test function of isemptyobject
 %
-% Syntax:  
+% Syntax:
 %    res = test_polyZonotope_isemptyobject
 %
 % Inputs:
@@ -16,19 +16,25 @@ function res = test_polyZonotope_isemptyobject
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      03-June-2022
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       03-June-2022
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
+
+res = true(0);
+
+% empty polynomial zonotope
+pZ = polyZonotope.empty(2);
+res(end+1,1) = isemptyobject(pZ);
 
 % instantiate polynomial zonotopes
-pZ1 = polyZonotope();
-pZ2 = polyZonotope([0;0],[0 4 1 -1 2; 1 2 -1 -1 1],...
+pZ = polyZonotope([0;0],[0 4 1 -1 2; 1 2 -1 -1 1],...
     [-7 1 1;15 1 -1],[1 0 0 0 1;0 1 0 3 2; 0 0 1 1 0]);
+res(end+1,1) = ~isemptyobject(pZ);
 
-% check results
-res = isemptyobject(pZ1) && ~isemptyobject(pZ2);
+% combine results
+res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

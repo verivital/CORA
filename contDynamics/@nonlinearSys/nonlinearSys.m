@@ -3,7 +3,7 @@ classdef nonlinearSys < contDynamics
 %    x' = f(x,u)    % dynamic equation
 %    y  = g(x,u)    % output equation
 %
-% Syntax
+% Syntax:
 %    % only dynamic equation
 %    obj = nonlinearSys(fun)
 %    obj = nonlinearSys(name,fun)
@@ -41,17 +41,17 @@ classdef nonlinearSys < contDynamics
 %
 % See also: contDynamics
 
-% Author:       Matthias Althoff, Niklas Kochdumper, Mark Wetzlinger
-% Written:      17-October-2007 
-% Last update:  29-October-2007
-%               04-August-2016 (changed to new OO format)
-%               19-May-2020 (NK, changed constructor syntax)
-%               02-February-2021 (MW, add switching between tensor files)
-%               17-November-2022 (MW, add output equation)
-%               23-November-2022 (MW, introduce checks, restructure)
-% Last revision:---
+% Authors:       Matthias Althoff, Niklas Kochdumper, Mark Wetzlinger
+% Written:       17-October-2007 
+% Last update:   29-October-2007
+%                04-August-2016 (changed to new OO format)
+%                19-May-2020 (NK, changed constructor syntax)
+%                02-February-2021 (MW, add switching between tensor files)
+%                17-November-2022 (MW, add output equation)
+%                23-November-2022 (MW, introduce checks, restructure)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 properties (SetAccess = private, GetAccess = public)
     % dynamic equation
@@ -270,7 +270,14 @@ end
 function [states,inputs,out_fun,outputs,out_isLinear] = ...
     aux_computeProperties(fun,states,inputs,out_fun,outputs)
 
-    % get number of states and number of inputs 
+    if ~isempty(inputs) && inputs == 0
+        % CORA requires at least one input so that the internal
+        % computations execute properly; some system do not have an input,
+        % so it would be correct to explicitly state '0'
+        inputs = 1;
+    end
+
+    % get number of states and number of inputs
     if isempty(states) || isempty(inputs)
         try
             [temp,states] = inputArgsLength(fun,2);
@@ -317,4 +324,4 @@ function [states,inputs,out_fun,outputs,out_isLinear] = ...
     end
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

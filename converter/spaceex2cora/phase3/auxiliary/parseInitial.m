@@ -2,7 +2,7 @@ function [initialSet,inputSet] = parseInitial(configLine,fileDesc,state_names,in
 % parseInitial - Constructs CORA sets from initial values given in a
 %    SpaceEx-ConfigFile
 %
-% Syntax:  
+% Syntax:
 %    [initialSet,inputSet] = parseInitial(configLine,fileDesc)
 %
 % Inputs:
@@ -31,12 +31,12 @@ function [initialSet,inputSet] = parseInitial(configLine,fileDesc,state_names,in
 %
 % See also: ---
 
-% Author:       Maximilian Perschl
-% Written:      05-September-2021
-% Last update:  16-Sep-2021
-% Last revision:---
+% Authors:       Maximilian Perschl
+% Written:       05-September-2021
+% Last update:   16-September-2021
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 operators = ["==" "<=" ">=" "<" ">"];
 % cut irrelevant parts off the string
@@ -254,13 +254,13 @@ end
 
 % state_names and input_names are ordered lists of names, which we use to
 % define the initial and input sets in the correct order
-initialSet = interval();
+initialSet = interval.empty(1);
 for i = 1:length(state_names)
     initialSet = vertcat(initialSet,variableMap(state_names(i).name));
 end
-inputSet = interval();
+inputSet = interval.empty(1);
 for i = 1:length(input_names)
     inputSet = vertcat(inputSet,variableMap(input_names(i).name));
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

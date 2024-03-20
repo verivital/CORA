@@ -1,7 +1,7 @@
 function res = test_ellipsoid_reduce
 % test_ellipsoid_reduce - unit test function of reduce
 %
-% Syntax:  
+% Syntax:
 %    res = test_ellipsoid_reduce
 %
 % Inputs:
@@ -16,15 +16,15 @@ function res = test_ellipsoid_reduce
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      23-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       23-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % empty case
-E = interval();
+E = ellipsoid.empty(2);
 % reduce
 E_ = reduce(E);
 % should remain the same...
@@ -40,4 +40,4 @@ res(end+1,1) = isequal(E,E_);
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

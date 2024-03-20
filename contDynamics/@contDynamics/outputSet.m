@@ -1,7 +1,7 @@
 function Y = outputSet(obj,options,R)
 % outputSet - calculates output set based on a (non-)linear output equation
 %
-% Syntax:  
+% Syntax:
 %    Y = outputSet(obj,options,R)
 %
 % Inputs:
@@ -24,13 +24,13 @@ function Y = outputSet(obj,options,R)
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      19-November-2022
-% Last update:  07-December-2022 (MW, allow to skip output set)
-%               23-June-2023 (LL, consider inputs in first-order term)
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       19-November-2022
+% Last update:   07-December-2022 (MW, allow to skip output set)
+%                23-June-2023 (LL, consider inputs in first-order term)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % skip computation of output set
 if ~options.compOutputSet
@@ -104,7 +104,7 @@ I_u = interval(U);
 I = cartProd(I_x,I_u);
 
 % evaluate reset function and Jacobian at expansion point
-D_lin = 0;
+D_lin = zeros(obj.nrOfOutputs,obj.nrOfInputs);
 if isa(obj,'nonlinearSys') || isa(obj,'nonlinearSysDT')
     zerothorder = obj.out_mFile(p_x,p_u);
     [J,D_lin] = obj.out_jacobian(p_x,p_u);
@@ -216,4 +216,4 @@ Y = zerothorder + firstorder + secondorder + thirdorder;
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

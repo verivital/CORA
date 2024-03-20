@@ -1,7 +1,7 @@
 function res = isequal(C1,C2,varargin)
 % isequal - checks if two capsules are equal
 %
-% Syntax:  
+% Syntax:
 %    res = isequal(C1,C2)
 %    res = isequal(C1,C2,tol)
 %
@@ -24,13 +24,13 @@ function res = isequal(C1,C2,varargin)
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      16-Sep-2019
-% Last update:  12-March-2021 (MW, add dimension mismatch)
-%               01-June-2022 (MW, correct dimension mismatch case)
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       16-September-2019
+% Last update:   12-March-2021 (MW, add dimension mismatch)
+%                01-June-2022 (MW, correct dimension mismatch case)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % too many input arguments
 if nargin > 3
@@ -45,8 +45,18 @@ inputArgsCheck({{C1,'att','capsule'};
                 {C2,'att','capsule'};
                 {tol,'att','numeric',{'scalar','nonnegative','nonnan'}}});
 
+% check ambient dimension
 if dim(C1) ~= dim(C2)
     res = false; return
+end
+
+% check emptiness
+C1_empty = representsa_(C1,'emptySet',tol);
+C2_empty = representsa_(C2,'emptySet',tol);
+if xor(C1_empty,C2_empty)
+    res = false; return
+elseif C1_empty && C2_empty
+    res = true; return
 end
 
 % check for equality
@@ -54,4 +64,4 @@ res = all(abs(center(C1) - center(C2)) < tol) && ... % center
     all(abs(C1.g - C2.g) < tol) && ... % generator
     abs(C1.r - C2.r) < tol; % radius
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

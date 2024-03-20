@@ -2,7 +2,7 @@ function runTestSuite(varargin)
 % runTestSuite - runs a test suite by executing all functions starting with
 %    the same prefix
 %
-% Syntax:  
+% Syntax:
 %    runTestSuite()
 %    runTestSuite(testSuite)
 %    runTestSuite(testSuite,verbose)
@@ -30,21 +30,29 @@ function runTestSuite(varargin)
 %    runTestSuite();
 %    runTestSuite('long',false,[CORAROOT filesep 'unitTests' filesep 'contSet' filesep 'capsule']);
 
-% Author:       Matthias Althoff, Mark Wetzlinger
-% Written:      31-August-2016
-% Last update:  22-January-2021 (MW, save results of full run)
-%               16-June-2023 (MW, add ':failed')
-% Last revision:09-April-2023 (MW, unify all runTestSuite_* files)
+% Authors:       Matthias Althoff, Mark Wetzlinger
+% Written:       31-August-2016
+% Last update:   22-January-2021 (MW, save results of full run)
+%                16-June-2023 (MW, add ':failed')
+% Last revision: 09-April-2023 (MW, unify all runTestSuite_* files)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % get the original working directory
 currentDirectory = pwd;
 
 % set default values
 rootUnitTests = [CORAROOT filesep 'unitTests'];
+rootExamples = [CORAROOT filesep 'examples'];
 [testSuite,verbose,directory] = setDefaultValues(...
-    {'short',true,rootUnitTests},varargin);
+    {'short',true,[]},varargin);
+if isempty(directory) 
+    if strcmp(testSuite,'examples') || strcmp(testSuite,'benchmarks')
+        directory = rootExamples;
+    else
+        directory = rootUnitTests;
+    end
+end
 
 % correct separator for directory
 temp = strrep(directory,'\',filesep);
@@ -57,7 +65,8 @@ if ~isfolder(directory)
 end
 
 % save start date and time (only full runs)
-if strcmp(directory,rootUnitTests)
+isFullRun = strcmp(directory,rootUnitTests) || strcmp(directory,rootExamples);
+if isFullRun
     timeStart = char(datetime(now,'ConvertFrom','datenum'));
 end
 
@@ -78,6 +87,8 @@ switch testSuite
         prefix = 'test';
     case 'long'
         prefix = 'testLong';
+    case 'flaky'
+        prefix = 'testFlaky';
     case 'intlab'
         prefix = 'testINTLAB';
     case 'mosek'
@@ -92,7 +103,12 @@ switch testSuite
         prefix{3} = 'testnn';
     case 'sdpt3'
         prefix = 'testSDPT3';
+    case 'examples'
+        prefix = 'example';
+    case 'benchmarks'
+        prefix = 'benchmark';
     otherwise
+        throw(CORAerror('CORA:specialError','Unknown test suite.'))
 end
 
 % currently, only nn test suite has three calls
@@ -108,10 +124,10 @@ for i=1:length(prefix)
 end
 
 % some test suites switch the directory...
-cd(directory);
+cd(rootUnitTests);
 
 % save result (only full runs)
-if strcmp(directory,rootUnitTests)
+if isFullRun
     % end time
     timeEnd = char(datetime(now,'ConvertFrom','datenum'));
 
@@ -119,6 +135,9 @@ if strcmp(directory,rootUnitTests)
     data.date = [timeStart ' - ' timeEnd(13:end)];
     % save full results
     data.results = results;
+
+    % save CORA version
+    data.coraversion = CORAVERSION;
 
     % save matlab version
     data.matlabversion = version;
@@ -167,7 +186,8 @@ cd(currentDirectory);
 end
 
 
-% Auxiliary function ------------------------------------------------------
+% Auxiliary functions -----------------------------------------------------
+
 function aux_runFailedTests(testSuite)
 % executes all unit tests of a given test suite that failed in the last
 % full run of that test suite
@@ -209,4 +229,4 @@ function aux_runFailedTests(testSuite)
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

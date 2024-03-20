@@ -1,7 +1,7 @@
 function res = test_zonoBundle_interval
 % test_zonoBundle_interval - unit test function of interval conversion
 %
-% Syntax:  
+% Syntax:
 %    res = test_zonoBundle_interval
 %
 % Inputs:
@@ -16,17 +16,18 @@ function res = test_zonoBundle_interval
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      23-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       23-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % fully-empty zonoBundle
-zB = zonoBundle();
+n = 2;
+zB = zonoBundle.empty(n);
 I = interval(zB);
-res = isempty(I);
+res = representsa(I,'emptySet') && dim(I) == n;
 
 % non-empty intersection
 Z1 = zonotope([1;1], [3 0; 0 2]);
@@ -41,9 +42,9 @@ Z2 = zonotope([-4;1],[0.5 1; 1 -1]);
 zB = zonoBundle({Z1,Z2});
 % convert to interval
 I = interval(zB);
-res(end+1,1) = isempty(I);
+res(end+1,1) = representsa(I,'emptySet');
 
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

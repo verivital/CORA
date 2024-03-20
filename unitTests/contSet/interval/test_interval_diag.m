@@ -1,7 +1,7 @@
 function res = test_interval_diag
 % test_interval_diag - unit test function of interval/diag
 %
-% Syntax:  
+% Syntax:
 %    res = test_interval_diag
 %
 % Inputs:
@@ -16,19 +16,19 @@ function res = test_interval_diag
 %
 % See also: interval/diag
 
-% Author:       Tobias Ladner
-% Written:      18-July-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Tobias Ladner
+% Written:       18-July-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 resvec = [];
 
 % 1. Empty case
-I = interval();
-resvec(end+1) = isequal(diag(I),I);
-resvec(end+1) = isequal(diag(I,0),I);
+I = interval.empty(2);
+resvec(end+1) = representsa(diag(I),'emptySet');
+resvec(end+1) = representsa(diag(I,0),'emptySet');
 
     
 % init random interval
@@ -48,4 +48,4 @@ resvec(end+1) = isequal(diag(D,1),interval([0;0]));
 % combine results
 res = all(resvec);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

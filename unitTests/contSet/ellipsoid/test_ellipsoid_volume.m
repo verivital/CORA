@@ -1,7 +1,7 @@
 function res = test_ellipsoid_volume
 % test_ellipsoid_volume - unit test function of volume
 %
-% Syntax:  
+% Syntax:
 %    res = test_ellipsoid_volume
 %
 % Inputs:
@@ -16,14 +16,15 @@ function res = test_ellipsoid_volume
 %
 % See also: -
 
-% Author:       Victor Gassmann
-% Written:      27-July-2021
-% Last update:  ---
-% Last revision:---
+% Authors:       Victor Gassmann
+% Written:       27-July-2021
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
+
 % res = true;
-res = (volume(ellipsoid()) == 0);
+res = (volume(ellipsoid.empty(2)) == 0);
 load cases.mat E_c
 for i=1:length(E_c)
     E1 = E_c{i}.E1; % non-deg
@@ -40,4 +41,4 @@ for i=1:length(E_c)
     end    
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

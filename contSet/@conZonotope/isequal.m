@@ -2,7 +2,7 @@ function res = isequal(cZ,S,varargin)
 % isequal - checks if a constrained zonotope represents the same set as
 %    another set
 %
-% Syntax:  
+% Syntax:
 %    res = isequal(cZ,S)
 %    res = isequal(cZ,S,tol)
 %
@@ -26,14 +26,14 @@ function res = isequal(cZ,S,varargin)
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: ---
+% See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      19-December-2022
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       19-December-2022
+% Last update:   16-December-2023 (MW, support comparison to polytope)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % too many input arguments
 if nargin > 3
@@ -49,8 +49,15 @@ inputArgsCheck({ {cZ,'att','conZonotope'}, ...
                  {tol,'att','numeric',{'nonempty','scalar','finite','nonnegative'}}});
 
 % only implemented for conZonotope - conZonotope/zonotope/interval
-if ~( isa(S,'conZonotope') || isa(S,'zonotope') || isa(S,'interval') )
+if ~( isa(S,'conZonotope') || isa(S,'zonotope') || isa(S,'interval') ...
+        || isa(S,'polytope'))
     throw(CORAerror('CORA:noops',cZ,S));
+end
+
+% second set: polytope
+if isa(S,'polytope')
+    res = contains(S,cZ,'exact',tol) && contains_(cZ,S,'exact',tol);
+    return
 end
 
 % second set: zonotope or interval
@@ -68,13 +75,13 @@ end
 % two constrained zonotopes
 
 % centers have to be the same
-if ~withinTol(cZ.Z(:,1),S.Z(:,1),tol)
+if ~withinTol(cZ.c,S.c,tol)
     res = false;
     return
 end
 
 % check if both are represented completely equally
-if compareMatrices([cZ.Z(:,2:end); cZ.A],[S.Z(:,2:end); S.A],tol) ...
+if compareMatrices([cZ.G; cZ.A],[S.G; S.A],tol) ...
         && compareMatrices([cZ.A cZ.b],[S.A S.b],tol)
     res = true;
     return
@@ -83,4 +90,4 @@ end
 % last resort: check vertices (computationally expensive!)
 res = compareMatrices(vertices(cZ),vertices(S),tol);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

@@ -1,7 +1,7 @@
 function res = test_levelSet_dim
 % test_levelSet_dim - unit test function of dim
 %
-% Syntax:  
+% Syntax:
 %    res = test_levelSet_dim
 %
 % Inputs:
@@ -16,19 +16,20 @@ function res = test_levelSet_dim
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      28-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       28-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % init symbolic variables
 syms x y
 
 % empty level set
-ls = levelSet();
-res = dim(ls) == 0;
+n = 2;
+ls = levelSet.empty(n);
+res = dim(ls) == n;
 
 % single equation
 eq = x^2 + y^2 - 4;
@@ -50,4 +51,4 @@ res(end+1,1) = dim(ls) == 2;
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

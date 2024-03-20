@@ -3,7 +3,7 @@ function display(pZ)
 %    dependent generator matrix, exponent matrix, independent generator
 %    matrix, identifiers) on the command window
 %
-% Syntax:  
+% Syntax:
 %    display(pZ)
 %
 % Inputs:
@@ -21,43 +21,41 @@ function display(pZ)
 %
 % See also: none
 
-% Author:        Mark Wetzlinger
+% Authors:       Mark Wetzlinger
 % Written:       02-May-2020
 % Last update:   09-June-2020 (show values)
 % Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-if isempty(pZ)
-    
-    dispEmptyObj(pZ,inputname(1));
-    
-else
-    
-    fprintf(newline);
-    disp(inputname(1) + " =");
-    fprintf(newline);
-    
-    % display center
-    disp('c: ');
-    disp(center(pZ));
-    
-    % display dependent generators
-    G = pZ.G;
-    displayGenerators(G,DISPLAYDIM_MAX,'G');
-    
-    % display independent generators
-    Grest = pZ.Grest;
-    displayGenerators(Grest,DISPLAYDIM_MAX,'Grest');
-    
-    % display exponential matrix
-    expMat = pZ.expMat;
-    displayGenerators(expMat,DISPLAYDIM_MAX,'expMat');
-    
-    % display id
-    disp('id:');
-    disp(pZ.id);
-    
+% special cases
+if representsa(pZ,'emptySet')
+    dispEmptySet(pZ,inputname(1));
+    return
+elseif representsa(pZ,'fullspace')
+    dispRn(pZ,inputname(1));
+    return
 end
 
-%------------- END OF CODE --------------
+
+fprintf(newline);
+disp(inputname(1) + " =");
+fprintf(newline);
+
+% display center
+disp('c: ');
+disp(center(pZ));
+
+% display dependent generators
+displayGenerators(pZ.G,DISPLAYDIM_MAX,'G');
+
+% display independent generators
+displayGenerators(pZ.GI,DISPLAYDIM_MAX,'GI');
+
+% display exponential matrix
+displayGenerators(pZ.E,DISPLAYDIM_MAX,'E');
+
+% display id
+displayIds(pZ.id,'id');
+
+% ------------------------------ END OF CODE ------------------------------

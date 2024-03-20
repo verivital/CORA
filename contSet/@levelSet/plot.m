@@ -1,7 +1,7 @@
 function han = plot(ls,varargin)
 % plot - plots a projection of a level set
 %
-% Syntax:  
+% Syntax:
 %    han = plot(ls)
 %    han = plot(ls,dims)
 %    han = plot(ls,dims,type)
@@ -31,12 +31,13 @@ function han = plot(ls,varargin)
 %
 % See also: none
 
-% Author:       Niklas Kochdumper, Tobias Ladner
-% Written:      19-July-2019
-% Last update:  22-May-2023 (TL: speed up plotting of '<=' levelSets)
-% Last revision:12-July-2023 (TL, restructure)
+% Authors:       Niklas Kochdumper, Tobias Ladner
+% Written:       19-July-2019
+% Last update:   22-May-2023 (TL, speed up plotting of '<=' levelSets)
+%                26-July-2023 (TL, getUnboundedAxisLimits)
+% Last revision: 12-July-2023 (TL, restructure)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % 1. parse input arguments
 [ls,dims,NVpairs,splits,plotMethod] = aux_parseInput(ls,varargin{:});
@@ -55,7 +56,7 @@ end
 end
 
 
-% Auxiliary Functions -----------------------------------------------------
+% Auxiliary functions -----------------------------------------------------
 
 function [ls,dims,NVpairs,splits,plotMethod] = aux_parseInput(ls,varargin)
     % parse input arguments
@@ -105,7 +106,7 @@ function [ls,dims] = aux_preprocess(ls,dims)
         dim_old = 1:length(ls.vars);
         dim_old = 2 + dim_old; % shift
         dim_old(dims) = 1;
-        ls = projectHighDim(ls, length(dim_old)+2, dim_old);
+        ls = lift_(ls, length(dim_old)+2, dim_old);
         dims = [1;2];
     end
 end
@@ -143,18 +144,16 @@ function han = aux_plot2Dcontour(obj,dims,type)
     % re-read plotOptions, since always plot called
     type = readPlotOptions(type,'contour');
 
-    % get limits of figure
-    ax = gca;
-    xlim = get(ax,'Xlim');
-    ylim = get(ax,'Ylim');
+    % get limits of current plot
+    [xLim,yLim,~] = getUnboundedAxisLimits();
     
     % substitute all remaining entries with zero
     p = zeros(obj.dim,1);
 
     % generate contour plot
     N = 30;
-    x = xlim(1):(xlim(2)-xlim(1))/N:xlim(2);
-    y = ylim(1):(ylim(2)-ylim(1))/N:ylim(2);
+    x = xLim(1):(xLim(2)-xLim(1))/N:xLim(2);
+    y = yLim(1):(yLim(2)-yLim(1))/N:yLim(2);
 
     [X,Y] = meshgrid(x,y);
     Z = zeros(size(X));
@@ -170,6 +169,7 @@ function han = aux_plot2Dcontour(obj,dims,type)
     % level at which contour is plotted: always at z = 0
     level = [0 0];
     [~,han] = contour(X,Y,Z,level,type{:});
+    updateColorIndex; % does not get updated for contour plots
 end
 
 function han = aux_plot2Dsplit(obj,dims,splits,plotMethod,NVpairs)
@@ -178,11 +178,10 @@ function han = aux_plot2Dsplit(obj,dims,splits,plotMethod,NVpairs)
     % re-read plotOptions, since always fill called
     NVpairs = readPlotOptions(NVpairs,'fill');
 
-    % get limits of figure
-    ax = gca;
-    xlim = get(ax,'Xlim');
-    ylim = get(ax,'Ylim');
-    space = interval([xlim(1);ylim(1)],[xlim(2);ylim(2)]);
+
+    % get limits of current plot
+    [xLim,yLim,~] = getUnboundedAxisLimits();
+    space = interval([xLim(1);yLim(1)],[xLim(2);yLim(2)]);
 
     % determine subspaces to be plotted
     subSpaces = aux_refineSpace(obj,dims,space,splits,plotMethod);
@@ -197,8 +196,8 @@ function han = aux_plot2Dsplit(obj,dims,splits,plotMethod,NVpairs)
         set(gca(),'ColorOrderIndex',1);
 
         % reset limits
-        set(ax,'Xlim',xlim);
-        set(ax,'Ylim',ylim);
+        xlim(xLim);
+        ylim(yLim);
     end
     hold on;
     ax = gca();
@@ -270,12 +269,9 @@ function han = aux_plot3Dsolvable(obj,dims,ind,type)
     % re-read plotOptions, since always surf ~ fill called
     type = readPlotOptions(type,'fill');
 
-    % get limits of figure
-    ax = gca;
-    xlim = get(ax,'Xlim');
-    ylim = get(ax,'Ylim');
-    zlim = get(ax,'Zlim');
-    lim = [xlim;ylim;zlim];
+    % get limits of current plot
+    [xLim,yLim,zLim] = getUnboundedAxisLimits();
+    lim = [xLim;yLim;zLim];
     
     % substitute all remaining entries with zero
     p = zeros(obj.dim,1);
@@ -322,12 +318,9 @@ function han = aux_plot3Dsplit(obj,dims,splits,plotMethod,NVpairs)
     % re-read plotOptions, since always fill called
     NVpairs = readPlotOptions(NVpairs,'fill');
 
-    % get limits of figure
-    ax = gca;
-    xlim = get(ax,'Xlim');
-    ylim = get(ax,'Ylim');
-    zlim = get(ax,'Zlim');
-    space = interval([xlim(1);ylim(1);zlim(1)],[xlim(2);ylim(2);zlim(2)]);
+    % get limits of current plot
+    [xLim,yLim,zLim] = getUnboundedAxisLimits();
+    space = interval([xLim(1);yLim(1);zLim(1)],[xLim(2);yLim(2);zLim(2)]);
 
     % determine subspaces to be plotted
     subSpaces = aux_refineSpace(obj,dims,space,splits,plotMethod);
@@ -342,9 +335,9 @@ function han = aux_plot3Dsplit(obj,dims,splits,plotMethod,NVpairs)
         set(gca(),'ColorOrderIndex',1);
 
         % reset limits
-        set(ax,'Xlim',xlim);
-        set(ax,'Ylim',ylim);
-        set(ax,'Zlim',zlim);
+        xlim(xLim);
+        ylim(yLim);
+        zlim(zLim);
     end
     hold on;
     ax = gca();
@@ -394,4 +387,4 @@ function [res,ind] = aux_isSolvable(obj,dims)
     end
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

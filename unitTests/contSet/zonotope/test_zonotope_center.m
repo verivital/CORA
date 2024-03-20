@@ -1,7 +1,7 @@
 function res = test_zonotope_center
 % test_zonotope_center - unit test function of center
 %
-% Syntax:  
+% Syntax:
 %    res = test_zonotope_center
 %
 % Inputs:
@@ -16,29 +16,26 @@ function res = test_zonotope_center
 %
 % See also: -
 
-% Author:       Matthias Althoff, Mark Wetzlinger
-% Written:      26-July-2016
-% Last update:  09-August-2020 (MW, enhance randomness of test)
-% Last revision:---
+% Authors:       Matthias Althoff, Mark Wetzlinger
+% Written:       26-July-2016
+% Last update:   09-August-2020 (MW, enhance randomness of test)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-% create zonotope
-Z = zonotope([1,2,3,4; 5 6 7 8]);
+res = true(0);
 
-% obtain center
+% empty zonotope
+Z = zonotope.empty(2);
 c = center(Z);
+res(end+1,1) = isempty(c) && isnumeric(c) && all(size(c) == [2, 0]);
 
-% true result
-true_vec = [1; 5];
+% 2D, create zonotope
+c = [1; 5]; G = [2 3 4; 6 7 8];
+Z = zonotope(c,G);
+res(end+1,1) = all(withinTol(c,center(Z)));
 
-% check result
-res_val = all(c == true_vec);
+% combine results
+res = all(res);
 
-% empty set
-res_e = isempty(center(zonotope())) && isnumeric(center(zonotope()));
-
-% add results
-res = res_val && res_e;
-
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

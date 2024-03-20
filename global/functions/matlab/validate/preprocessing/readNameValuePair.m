@@ -5,7 +5,7 @@ function [NVpairs,value] = readNameValuePair(NVpairs,name,varargin)
 %    provided value can be checked by a function handle and one may also
 %    return a default value if the desired name-value pair is not given
 %
-% Syntax:  
+% Syntax:
 %    [NVpairs,value] = readNameValuePair(NVpairs,name)
 %    [NVpairs,value] = readNameValuePair(NVpairs,name,check)
 %    [NVpairs,value] = readNameValuePair(NVpairs,name,check,def)
@@ -31,13 +31,14 @@ function [NVpairs,value] = readNameValuePair(NVpairs,name,varargin)
 %
 % See also: readPlotOptions, polyZonotope/plot
 
-% Author:       Mark Wetzlinger, Niklas Kochdumper
-% Written:      15-July-2020
-% Last update:  24-November-2021 (allow cell-array of check functions)
-%               07-July-2022 (MW, case-insensitive, string compatibility)
-% Last revision:---
+% Authors:       Mark Wetzlinger, Niklas Kochdumper
+% Written:       15-July-2020
+% Last update:   24-November-2021 (allow cell-array of check functions)
+%                07-July-2022 (MW, case-insensitive, string compatibility)
+%                29-November-2023 (TL, check for CHECKS_ENABLED)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % write function into cell-array
 funcs = [];
@@ -55,6 +56,9 @@ if nargin >= 4
     value = varargin{2};
 end
 
+% checks enabled
+checks_enabled = CHECKS_ENABLED();
+
 % check every second entry
 for i=1:2:length(NVpairs)-1
     
@@ -64,11 +68,13 @@ for i=1:2:length(NVpairs)-1
         % name found, get value
         value = NVpairs{i+1};
 
-        % check whether name complies with check
-        for j=1:length(funcs)
-            if ~feval(funcs{j},value)
-                throw(CORAerror('CORA:specialError', ...
-                    sprintf("Invalid assignment for name-value pair '%s': Must pass '%s'.", name, funcs{j})))
+        if checks_enabled
+            % check whether name complies with check
+            for j=1:length(funcs)
+                if ~feval(funcs{j},value)
+                    throw(CORAerror('CORA:specialError', ...
+                        sprintf("Invalid assignment for name-value pair '%s': Must pass '%s'.", name, funcs{j})))
+                end
             end
         end
 
@@ -80,4 +86,4 @@ end
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

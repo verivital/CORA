@@ -1,7 +1,7 @@
 function res = test_interval_display
 % test_interval_display - unit test function of display
 %
-% Syntax:  
+% Syntax:
 %    res = test_interval_display
 %
 % Inputs:
@@ -16,17 +16,17 @@ function res = test_interval_display
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      21-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       21-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 res = true;
 
 % empty interval
-I = interval()
+I = interval.empty(2)
 
 % column interval
 I = interval([-3;2;1],[4;5;6])
@@ -52,4 +52,4 @@ lb = [-1; zeros(14,1)];
 ub = [zeros(14,1); 1];
 I = interval(sparse(lb),sparse(ub))
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

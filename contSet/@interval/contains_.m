@@ -1,7 +1,7 @@
 function res = contains_(I,S,type,tol,varargin)
 % contains_ - determines if an interval contains a set or a point
 %
-% Syntax:  
+% Syntax:
 %    res = contains_(I,S)
 %    res = contains_(I,S,type)
 %    res = contains_(I,S,type,tol)
@@ -26,19 +26,25 @@ function res = contains_(I,S,type,tol,varargin)
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: zonotope/contains_
+% See also: contSet/contains, zonotope/contains_
 
-% Author:       Niklas Kochdumper
-% Written:      16-May-2018
-% Last update:  02-Sep-2019
-%               15-November-2022 (MW, return logical array for points)
-%               25-November-2022 (MW, rename 'contains')
-% Last revision:27-March-2023 (MW, rename contains_)
+% Authors:       Niklas Kochdumper
+% Written:       16-May-2018
+% Last update:   02-September-2019
+%                15-November-2022 (MW, return logical array for points)
+%                25-November-2022 (MW, rename 'contains')
+% Last revision: 27-March-2023 (MW, rename contains_)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % init result
 res = false;
+
+% set in empty set
+if representsa_(I,'emptySet',0)
+    res = representsa_(S,'emptySet',0);
+    return
+end
 
 % point in interval containment
 if isnumeric(S)
@@ -57,8 +63,8 @@ elseif isa(S,'interval')
 % other set in interval containment
 else
 
-    res = contains_(mptPolytope(I),S,type,tol);
+    res = contains(polytope(I),S,type,tol);
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

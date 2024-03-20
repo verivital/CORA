@@ -1,2 +1,2 @@
 # get image
-FROM tobiasladnertum/cora:r2022a-dl
+FROM tobiasladnertum/cora:r2023b

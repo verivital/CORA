@@ -2,7 +2,7 @@ function res = test_interval_log
 % test_interval_log - unit test function of natural logarithm for intervals
 %    overloaded 'log()' function for intervals
 %
-% Syntax:  
+% Syntax:
 %    res = test_interval_log
 %
 % Inputs:
@@ -15,38 +15,31 @@ function res = test_interval_log
 % Subfunctions: none
 % MAT-files required: none
 
-% Author:       Dmitry Grebenyuk, Mark Wetzlinger
-% Written:      07-February-2016
-% Last update:  08-June-2020 (MW, rewrite based on new NaN/Inf handling)
-% Last revision:---
+% Authors:       Dmitry Grebenyuk, Mark Wetzlinger
+% Written:       07-February-2016
+% Last update:   08-June-2020 (MW, rewrite based on new NaN/Inf handling)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 tol = 1e-9;
-res = true;
+res = true(0);
 
-Int1 = interval([-2; -2],[-1; 0]);
+% bounded input, unbounded output
+I = interval([0, 1],[2, exp(1)]);
+I_log = log(I);
+I_true = interval([-Inf,0],[0.6931471805599,1]);
+res(end+1,1) = isequal(I_log,I_true,tol);
 
+% out of bounds: throws an error since we cannot instantiate NaN intervals
+I = interval([-2; -2],[-1; 0]);
 try
-    c = log(Int1);
+    log(I);
     res = false;
-    return;
-catch
-    % log results in NaN -> should throw error
-end
-
-Int2 = interval([0, 1],[2, 2]);
-c = log(Int2);
-
-if ~isinf(infimum(c(1, 1))) || abs( supremum(c(1, 1)) - 0.6931471805599 ) > tol
-	res = false;
-	return;
-end
-
-if abs( infimum(c(1, 2)) - 0.0 ) > tol || abs( supremum(c(1, 2)) - 0.6931471805599 ) > tol
-	res = false;
-	return;
 end
 
 
-%------------- END OF CODE --------------
+% combine results
+res = all(res);
+
+% ------------------------------ END OF CODE ------------------------------

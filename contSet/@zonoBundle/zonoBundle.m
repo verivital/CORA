@@ -6,7 +6,7 @@ classdef (InferiorClasses = {?intervalMatrix, ?matZonotope}) zonoBundle  < contS
 %    \bigcap_j=1^k {c_j + \sum_{i=1}^p_j beta_i * g_j^(i) | beta_i \in [-1,1]},
 %    i.e., the intersection of k zonotopes
 %
-% Syntax:  
+% Syntax:
 %    obj = zonoBundle(list)
 %
 % Inputs:
@@ -36,13 +36,13 @@ classdef (InferiorClasses = {?intervalMatrix, ?matZonotope}) zonoBundle  < contS
 %
 % See also: zonotope
 
-% Author:       Matthias Althoff
-% Written:      09-November-2010
-% Last update:  14-December-2022 (TL, property check in inputArgsCheck)
-%               29-March-2023 (TL: optimized constructor)
-% Last revision:16-June-2023 (MW, restructure using auxiliary functions)
+% Authors:       Matthias Althoff
+% Written:       09-November-2010
+% Last update:   14-December-2022 (TL, property check in inputArgsCheck)
+%                29-March-2023 (TL, optimized constructor)
+% Last revision: 16-June-2023 (MW, restructure using auxiliary functions)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 
 properties (SetAccess = private, GetAccess = public)
@@ -55,6 +55,11 @@ end
 methods
     % class constructor
     function obj = zonoBundle(varargin)
+
+        % 0. avoid empty instantiation
+        if nargin == 0
+            throw(CORAerror('CORA:noInputInSetConstructor'));
+        end
 
         % 1. copy constructor
         if nargin == 1 && isa(varargin{1},'zonoBundle')
@@ -86,10 +91,9 @@ methods
     zB = encloseTight(zB1,zB2,W) % enclose zonotope bundle and affine transformation
     zB = enlarge(zB,factor) % enlarge extensions
     I = interval(zB) % conversion to interval object
-    res = isempty(zB) % emptyness check
     res = isequal(zB1,zB2) % equality check
     res = isFullDim(zB) % full-dimensionality check
-    P = mptPolytope(zB) % conversion to polytope
+    P = polytope(zB) % conversion to polytope
     zB = mtimes(factor1,factor2) % overloaded * operator
     zB = or(zB1, varargin) % union
     zB = plus(summand1,summand2) % overloaded + operator
@@ -99,6 +103,7 @@ methods
     zB = reduce(zB,option,varargin) % order reduction
     zB = reduceCombined(zB,option,varargin) % order reduction
     zB = replace(zB,index,Z) % replace individual zonotope in bundle
+    res = representsa_(zB,type,tol,varargin) % comparsion to other set representations
     zB = shrink(zB,filterLength) % shrink extensions
     Zsplit = split(zB,varargin) % split
     Z = zonotope(zB) % conversion to zonotope object
@@ -111,11 +116,13 @@ end
 
 methods (Static = true)
     zB = generateRandom(varargin) % generate random zonotope bundle
+    zB = empty(n) % instantiates an empty zonotope bundle
 end
 
 end
 
-% Auxiliary Functions -----------------------------------------------------
+
+% Auxiliary functions -----------------------------------------------------
 
 function Z = aux_parseInputArgs(varargin)
 % parse input arguments from user and assign to variables
@@ -153,4 +160,4 @@ function aux_checkInputArgs(Z,n_in)
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

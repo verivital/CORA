@@ -2,7 +2,7 @@ function I = interval(cZ)
 % interval - over-approximate a constrained zonotope object with an
 %    axis-aligned interval (bounding box)
 %
-% Syntax:  
+% Syntax:
 %    I = interval(cZ)
 %
 % Inputs:
@@ -26,36 +26,41 @@ function I = interval(cZ)
 %
 % See also: none
 
-% Author:       Niklas Kochdumper
-% Written:      13-May-2018
-% Last update:  ---
-% Last revision:---
+% Authors:       Niklas Kochdumper, Mark Wetzlinger
+% Written:       13-May-2018
+% Last update:   23-February-2024 (MW, conversion of empty set)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-if isempty(cZ.A)       % no constraints -> call zonotope method
-    
-    I = interval(zonotope(cZ.Z));
-    
-else                    % constraints 
-    
-    n = size(cZ.Z,1);
-    I = interval(zeros(n,1));
-
-    % remove the trivial constraint 0*beta = 0
-    cZ = deleteZeros(cZ);
-
-    % loop over all dimensions
-    for i = 1:n
-        temp = zeros(n,1);
-        temp(i) = 1;
-
-        % calculate exact bounds by solving a linear program
-        lb = supportFunc_(cZ,temp,'lower');
-        ub = supportFunc_(cZ,temp,'upper');
-
-        I(i) = interval(lb,ub);
-    end
+if isempty(cZ.A)
+    % no constraints -> call zonotope method    
+    I = interval(zonotope(cZ.c,cZ.G));
+    return
 end
 
-%------------- END OF CODE --------------
+% case with constraints 
+n = dim(cZ);
+I = interval(zeros(n,1));
+
+% remove the trivial constraint 0*beta = 0
+cZ = compact_(cZ,'zeros',eps);
+
+% loop over all dimensions
+for i = 1:n
+    temp = zeros(n,1);
+    temp(i) = 1;
+
+    % calculate exact bounds by solving a linear program
+    lb = supportFunc_(cZ,temp,'lower');
+    if lb == Inf
+        % empty
+        I = interval.empty(n);
+        return
+    end
+    ub = supportFunc_(cZ,temp,'upper');
+    I(i) = interval(lb,ub);
+    
+end
+
+% ------------------------------ END OF CODE ------------------------------

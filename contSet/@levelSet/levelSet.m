@@ -38,12 +38,12 @@ classdef levelSet < contSet
 %
 % See also: halfspace, conHyperplane
 
-% Author:       Niklas Kochdumper
-% Written:      19-July-2019
-% Last update:  ---
-% Last revision:16-June-2023 (MW, restructure using auxiliary functions)
+% Authors:       Niklas Kochdumper
+% Written:       19-July-2019
+% Last update:   ---
+% Last revision: 16-June-2023 (MW, restructure using auxiliary functions)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 properties (SetAccess = private, GetAccess = public)
     
@@ -64,6 +64,11 @@ methods
     
     % class constructor
     function obj = levelSet(varargin)
+
+        % 0. avoid empty instantiation
+        if nargin == 0
+            throw(CORAerror('CORA:noInputInSetConstructor'));
+        end
 
         % 1. copy constructor
         if nargin == 1 && isa(varargin{1},'levelSet')
@@ -94,13 +99,15 @@ methods
 end
 
 methods (Static = true)
-    S = generateRandom(varargin) % generates a random levelSet
+    ls = generateRandom(varargin) % generates a random level set
+    ls = empty(n) % instantiates an empty level set
+    ls = Inf(n) % instantiates a fullspace level set
 end
 
 end
 
 
-% Auxiliary Functions -----------------------------------------------------
+% Auxiliary functions -----------------------------------------------------
 
 function [eq,vars,compOp,solved] = aux_parseInputArgs(varargin)
 % parse input arguments from user and assign to variables
@@ -270,4 +277,4 @@ function [eq,grad,hess,third] = aux_derivatives(eq,vars,i)
     end
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

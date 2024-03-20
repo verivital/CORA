@@ -1,7 +1,7 @@
 function res = test_interval_or
 % test_interval_or - unit test function of or
 %
-% Syntax:  
+% Syntax:
 %    res = test_interval_or
 %
 % Inputs:
@@ -14,14 +14,14 @@ function res = test_interval_or
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: -
+% See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      29-August-2019
-% Last update:  16-September-2019
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       29-August-2019
+% Last update:   16-September-2019
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % TEST 1: Analytical ------------------------------------------------------
 % create intervals
@@ -41,7 +41,8 @@ upper_true = [ 2;  5;  2];
 IntUnion_true = interval(lower_true, upper_true);
 
 % empty set
-res_e = or(Int1,interval()) == Int1;
+I_empty = interval.empty(3);
+res_e = or(Int1,I_empty) == Int1;
 % compare results
 res_analytical = all(infimum(IntUnion) == infimum(IntUnion_true)) && ...
         all(supremum(IntUnion) == supremum(IntUnion_true)) && res_e;
@@ -73,4 +74,4 @@ res_rand = all(infimum(IntUnion) == infimum(IntUnion_true)) && ...
 % add results
 res = res_analytical && res_rand;
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

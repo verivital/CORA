@@ -19,19 +19,19 @@ function obj = preReach(obj,options)
 %
 % See also: none
 
-% Author:       Matthias Althoff
-% Written:      26-August-2011
-% Last update:  ---
-% Last revision:---
+% Authors:       Matthias Althoff
+% Written:       26-August-2011
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % compute mapping matrix
 [obj] = mappingMatrix(obj,options);
 % compute time interval error (tie)
 obj = tie(obj);
 %compute reachable set due to uncertain input
-U = deleteZeros(options.U);
+U = compact_(options.U,'zeros',eps);
 obj.RV = errorSolution(obj,options,U);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

@@ -1,7 +1,7 @@
 function res = test_capsule_isFullDim
 % test_capsule_isFullDim - unit test function of isFullDim
 %
-% Syntax:  
+% Syntax:
 %    res = test_capsule_isFullDim
 %
 % Inputs:
@@ -16,14 +16,14 @@ function res = test_capsule_isFullDim
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      27-July-2021
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       27-July-2021
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-res = true;
+res = true(0);
 
 % define properties
 c = [2; 0; -1];
@@ -34,25 +34,26 @@ r0 = 0;
 
 % generator and radius all-zero
 C = capsule(c,g0,r0);
-res(1) = ~isFullDim(C);
+res(end+1,1) = ~isFullDim(C);
 
 % generator all-zero
 C = capsule(c,g0,r);
-res(2) = isFullDim(C);
+res(end+1,1) = isFullDim(C);
 
 % radius is zero
 C = capsule(c,g,r0);
-res(3) = ~isFullDim(C);
+res(end+1,1) = ~isFullDim(C);
 
 % generator and radius non-zero
 C = capsule(c,g,r);
-res(4) = isFullDim(C);
+res(end+1,1) = isFullDim(C);
 
 % empty set
-C = capsule();
-res(5) = ~isFullDim(C);
+C = capsule.empty(2);
+res(end+1,1) = ~isFullDim(C);
+
 
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

@@ -3,7 +3,7 @@ function res = test_intervalMatrix_exactSquare
 %    according to [1]
 % 
 % 
-% Syntax:  
+% Syntax:
 %    res = test_intervalMatrix_exactSquare
 %
 % Inputs:
@@ -21,14 +21,14 @@ function res = test_intervalMatrix_exactSquare
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: -
+% See also: none
 
-% Author:       Matthias Althoff
-% Written:      01-November-2017
-% Last update:  ---
-% Last revision:---
+% Authors:       Matthias Althoff
+% Written:       01-November-2017
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % create interval matrix
 % center
@@ -106,4 +106,4 @@ res_2 = all(I2 <= enlarge(I,1+1e-8));
 %result of different computation techniques
 res = res_1 && res_2;
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

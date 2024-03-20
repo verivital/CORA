@@ -3,7 +3,7 @@ function [forbiddenSpecs,spec_mapping] = ...
 % parseForbidden - Constructs CORA specifications from forbidden states
 %    given in a SpaceEx-ConfigFile
 %
-% Syntax:  
+% Syntax:
 %    [forbiddenSpecs,spec_mapping] = ...
 %       parseForbidden(configLine,state_names,component_names,location_names)
 %
@@ -36,12 +36,12 @@ function [forbiddenSpecs,spec_mapping] = ...
 %
 % See also: ---
 
-% Author:       Maximilian Perschl
-% Written:      08-September-2021
-% Last update:  24-Sep-2021
-% Last revision:---
+% Authors:       Maximilian Perschl
+% Written:       08-September-2021
+% Last update:   24-September-2021
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % cut irrelevant parts off the string
 configLine_split = split(configLine,'"');
@@ -69,7 +69,7 @@ end
 configLine = configLine_split(2);
 
 % We start with an empty specification (empty unsafe set), and add onto it iteratively
-forbiddenSpecs = specification(halfspace(),'unsafeSet');
+forbiddenSpecs = specification(halfspace.empty(length(state_names)),'unsafeSet');
 
 % We assume the specification of "forbidden" to be in conjuntive normal
 % form, therefore we can get a set of specifications we can add on to each
@@ -178,22 +178,23 @@ for i = 1:length(forbiddenTerms)
     else
         % Create a specification that is never satisfied, active
         % for the relevant location only
-        forbiddenSpecs = add(forbiddenSpecs,specification(interval(),'invariant'));
+        forbiddenSpecs = add(forbiddenSpecs,...
+            specification(interval.empty(length(state_names)),'invariant'));
     end
     
     % if no restriction on the location has been made, the specification
     % holds for all locations and components
     if ~loc_restriction && ~no_mapping
-        spec_mapping = createMapEntryForAll(spec_mapping,spec_index,component_names,location_names);
+        spec_mapping = aux_createMapEntryForAll(spec_mapping,spec_index,component_names,location_names);
     end
 end
 
 end
 
 
-% Auxiliary Functions -----------------------------------------------------
+% Auxiliary functions -----------------------------------------------------
 
-function resulting_map = createMapEntryForAll(prev_map,constr_index,component_names,location_names)
+function resulting_map = aux_createMapEntryForAll(prev_map,constr_index,component_names,location_names)
 % create an entry for a specification that is relevant to all locations and
 % components
     n_components = length(component_names);
@@ -208,4 +209,4 @@ function resulting_map = createMapEntryForAll(prev_map,constr_index,component_na
     resulting_map = prev_map;
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

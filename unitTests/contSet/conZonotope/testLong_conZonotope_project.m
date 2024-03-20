@@ -1,7 +1,7 @@
 function res = testLong_conZonotope_project
 % testLong_conZonotope_project - unit test function of project
 %
-% Syntax:  
+% Syntax:
 %    res = testLong_conZonotope_project
 %
 % Inputs:
@@ -16,17 +16,17 @@ function res = testLong_conZonotope_project
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      14-March-2021
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       14-March-2021
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 res = true;
 
 % check empty conZonotope object: projection should return error
-cZ = conZonotope();
+cZ = conZonotope.empty(1);
 try 
     project(cZ,[1,2])
     res = false;
@@ -97,4 +97,4 @@ for i=1:nrOfTests
     
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

@@ -1,7 +1,7 @@
 function res = test_ellipsoid_contains
 % test_ellipsoid_contains - unit test function of contains
 %
-% Syntax:  
+% Syntax:
 %    res = test_ellipsoid_contains
 %
 % Inputs:
@@ -16,18 +16,18 @@ function res = test_ellipsoid_contains
 %
 % See also: -
 
-% Author:       Victor Gassmann
-% Written:      26-July-2021
-% Last update:  ---
-% Last revision:---
+% Authors:       Victor Gassmann
+% Written:       26-July-2021
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 res = true;
 load cases.mat E_c
 
 % empty set: rewrite using emptySet class
-% E_e = ellipsoid();
+% E_e = ellipsoid.empty(2);
 % res = contains(E_c{1}.E1,E_e) && ~contains(E_e,E_c{1}.E1);
 
 % loop over cases
@@ -66,4 +66,4 @@ Z = zonotope(c,G);
 
 res = res && ~contains(E,Z);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

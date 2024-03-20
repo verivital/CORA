@@ -1,7 +1,7 @@
 function res = test_capsule_volume
 % test_capsule_volume - unit test function of volume
 %
-% Syntax:  
+% Syntax:
 %    res = test_capsule_volume
 %
 % Inputs:
@@ -14,14 +14,20 @@ function res = test_capsule_volume
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: -
+% See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      27-July-2021
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       27-July-2021
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
+
+res = true(0);
+
+% empty case
+C = capsule.empty(2);
+res(end+1,1) = volume(C) == 0;
 
 % instantiate capsule as ball
 n = 3;
@@ -32,13 +38,15 @@ C = capsule(c,g,r);
 
 % calculate volume
 vol = volume(C);
-
 % true volume (n-dim sphere)
 vol_true = (pi^(n/2) / gamma(1+n/2)) * r^n;
 
 % compare results
 tol = 1e-9;
-res = withinTol(vol_true,vol,tol);
-res = res && volume(capsule()) == 0;
+res(end+1,1) = withinTol(vol_true,vol,tol);
 
-%------------- END OF CODE --------------
+
+% combine results
+res = all(res);
+
+% ------------------------------ END OF CODE ------------------------------

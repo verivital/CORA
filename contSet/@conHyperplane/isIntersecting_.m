@@ -1,7 +1,7 @@
 function res = isIntersecting_(hyp,S,type,varargin)
 % isIntersecting_ - determines if a constrained hyperplane intersects a set
 %
-% Syntax:  
+% Syntax:
 %    res = isIntersecting_(hyp,S)
 %    res = isIntersecting_(hyp,S,type)
 %
@@ -14,9 +14,9 @@ function res = isIntersecting_(hyp,S,type,varargin)
 %    res - true/false
 %
 % Example: 
-%    hyp = conHyperplane(halfspace([1;1],0),[1 0;-1 0],[2;2]);
+%    hyp = conHyperplane([1 1],0,[1 0;-1 0],[2;2]);
 %    Z = zonotope([0 1 1 0; 0 1 0 1]);
-%    P = mptPolytope([-1 -1; 1 0;-1 0; 0 1; 0 -1],[2;3;2;3;2]) + [2;2];
+%    P = polytope([-1 -1; 1 0;-1 0; 0 1; 0 -1],[2;3;2;3;2]) + [2;2];
 %
 %    isIntersecting(hyp,Z)
 %    isIntersecting(hyp,P)
@@ -33,15 +33,15 @@ function res = isIntersecting_(hyp,S,type,varargin)
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: conHyperplane/contains_
+% See also: contSet/isIntersecting, conHyperplane/contains_
 
-% Author:       Niklas Kochdumper
-% Written:      16-May-2018
-% Last update:  14-September-2019
-%               20-November-2019
-% Last revision:27-March-2023 (MW, rename isIntersecting_)
+% Authors:       Niklas Kochdumper
+% Written:       16-May-2018
+% Last update:   14-September-2019
+%                20-November-2019
+% Last revision: 27-March-2023 (MW, rename isIntersecting_)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
     
     % exact or apprxomiative algorithm
     if strcmp(type,'exact')
@@ -49,13 +49,14 @@ function res = isIntersecting_(hyp,S,type,varargin)
         if isempty(hyp.C) && ~isa(S,'zonoBundle')
             res = isIntersecting(hyp,S,'approx');
         else
+
             % init options for linprog (used in all aux_ functions)
             persistent options
             if isempty(options)
                 options = optimoptions('linprog','display','off');
             end
 
-            if isa(S,'mptPolytope')
+            if isa(S,'polytope')
                 res = aux_intersectPolyPoly(hyp,S,options);
             elseif isa(S,'interval') || isa(S,'zonotope')
                 res = aux_intersectPolyConZono(hyp,conZonotope(S),options);
@@ -81,17 +82,16 @@ function res = isIntersecting_(hyp,S,type,varargin)
                 Z = S.Z{j};
             
                 % check instesection with hyperplane
-                lb = supportFunc_(Z,hyp.h.c,'lower');
-                ub = supportFunc_(Z,hyp.h.c,'upper');
+                lb = supportFunc_(Z,hyp.a','lower');
+                ub = supportFunc_(Z,hyp.a','upper');
 
-                if ~contains_(interval(lb,ub),hyp.h.d,'exact',0)
+                if ~contains_(interval(lb,ub),hyp.b,'exact',0)
                    res = false;
                    return;
                 end
 
                 % check intersection with inequality constraints
-                C = hyp.C;
-                d = hyp.d;
+                C = hyp.C; d = hyp.d;
 
                 for i = 1:size(C,1)
                    bound = supportFunc_(Z,C(i,:)','lower');
@@ -110,17 +110,16 @@ function res = isIntersecting_(hyp,S,type,varargin)
             end
             
             % check instesection with hyperplane
-            lb = supportFunc_(S,hyp.h.c,'lower',otherOptions{:});
-            ub = supportFunc_(S,hyp.h.c,'upper',otherOptions{:});
+            lb = supportFunc_(S,hyp.a','lower',otherOptions{:});
+            ub = supportFunc_(S,hyp.a','upper',otherOptions{:});
 
-            if ~contains_(interval(lb,ub),hyp.h.d,'exact',0)
+            if ~contains_(interval(lb,ub),hyp.b,'exact',0)
                res = false;
                return;
             end
 
             % check intersection with inequality constraints
-            C = hyp.C;
-            d = hyp.d;
+            C = hyp.C; d = hyp.d;
 
             for i = 1:size(C,1)
                bound = supportFunc_(S,C(i,:)','lower',otherOptions{:});
@@ -134,7 +133,7 @@ function res = isIntersecting_(hyp,S,type,varargin)
 end
 
 
-% Auxiliary Functions -----------------------------------------------------    
+% Auxiliary functions -----------------------------------------------------
 
 function res = aux_intersectPolyPoly(obj1,obj2,options)
 % check if a constrained hyperplane {x | c x = d, A x < b} and a polytope
@@ -148,12 +147,12 @@ function res = aux_intersectPolyPoly(obj1,obj2,options)
 %          c x = d 
     
     % construct matrices for inequality constraints
-    A = [obj2.P.A;obj1.C];
-    b = [obj2.P.b;obj1.d];
+    A = [obj2.A;obj1.C];
+    b = [obj2.b;obj1.d];
     
     % construct matrices for equality constraint
-    Aeq = obj1.h.c';
-    beq = obj1.h.d;
+    Aeq = obj1.a;
+    beq = obj1.b;
     
     % introduce slack variables y
     m = length(b);
@@ -192,14 +191,14 @@ function res = aux_intersectPolyConZono(obj1,obj2,options)
 %           a \in [-1,1]
 
     % get object properties
-    h = obj1.h.c;
-    d = obj1.h.d;
+    h = obj1.a';
+    d = obj1.b;
     
     H = obj1.C;
     k = obj1.d;
     
-    c = obj2.Z(:,1);
-    G = obj2.Z(:,2:end);
+    c = obj2.c;
+    G = obj2.G;
     
     n = length(c);
     m = size(G,2);
@@ -262,8 +261,8 @@ function res = aux_intersectPolyZonoBundle(obj1,obj2,options)
 %   a1,...,aq \in [-1,1]
 
     % get object properties
-    h = obj1.h.c;
-    d = obj1.h.d;
+    h = obj1.a';
+    d = obj1.b;
     
     H = obj1.C;
     k = obj1.d;
@@ -320,4 +319,4 @@ function res = aux_intersectPolyZonoBundle(obj1,obj2,options)
     end
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

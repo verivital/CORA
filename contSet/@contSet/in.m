@@ -1,8 +1,9 @@
 function res = in(S1,S2,varargin)
 % in - (DEPRECATED -> contains)
 %
-% Syntax:  
+% Syntax:
 %    res = contains(S1,S2,tol)
+%    res = in(S1,S2,tol) % deprecated
 %
 % Inputs:
 %    S1 - contSet object
@@ -17,12 +18,12 @@ function res = in(S1,S2,varargin)
 %
 % See also: contains
 
-% Author:       Mark Wetzlinger
-% Written:      25-November-2022
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       25-November-2022
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 warning(sprintf(['The function ''in'' is deprecated (since CORA 2022) and has been replaced by ''contains''.\n' ...
     '         The main reason is that the syntax in(S1,S2) can also be written as S1.in(S2).\n' ...
@@ -32,4 +33,4 @@ warning(sprintf(['The function ''in'' is deprecated (since CORA 2022) and has be
     '         Note that the function ''in'' will be removed in a future release.']));
 res = contains(S1,S2,varargin{:});
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

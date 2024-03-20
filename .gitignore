@@ -1,24 +1,31 @@
 # exclude autosave files
-
 *.asv
-
 *.m~
-
 *.txt~
 
-#exclude generated files
+# exclude generated files
 generated_*
 models/auxiliary/*
+**/+CustomLayers
+**/+DLT_CustomLayers
 
-#exclude cora2spaceex converted models
+# explude files from installCORA 
+# (in case some installs tbxmanager into the CORA folder)
+**/tbxmanager
+**/startup.m
+
+# exclude from from general cora conversions
 models/CoraConverted/*
-#exclude files from power systems conversion
-models/Cora/powerSystems/*
+# exclude files from power systems conversion
+models/powerSystemsConverted/*
+# exclude files from spaceex conversion
+models/SpaceExConverted/*
 
 /.project
 
-#exclude latex generated files
+# exclude latex generated files
 **/*.aux
+**/*.auxlock
 **/*.bbl
 **/*.blg
 **/*.dvi
@@ -30,5 +37,10 @@ manual/*.pdf
 **/*.synctex.gz
 **/*-eps-converted-to.pdf
 
+manual/figures/externalize
+
 */.idea
 manual/manual.iml
+
+# for MAC users
+**/.DS_Store

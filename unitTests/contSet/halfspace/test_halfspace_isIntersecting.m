@@ -1,7 +1,7 @@
 function res = test_halfspace_isIntersecting
 % test_halfspace_isIntersecting - unit test function of isIntersecting
 %
-% Syntax:  
+% Syntax:
 %    res = test_halfspace_isIntersecting
 %
 % Inputs:
@@ -16,18 +16,19 @@ function res = test_halfspace_isIntersecting
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      02-September-2019
-% Last update:  04-May-2020 (adapt acc. to new definition of isIntersecting)
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       02-September-2019
+% Last update:   04-May-2020 (adapt acc. to new definition of isIntersecting)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
+
+res = true(0);
 
 % intersection with empty set
-% res_e = ~isIntersecting(halfspace([1 1],2),zonotope());
+% res_e = ~isIntersecting(halfspace([1 1],2),zonotope.empty(2));
 
-% TEST 1: Zonotopes -------------------------------------------------------
-% instantiate zonotope
+% 2D zonotope
 Z = zonotope([zeros(2,1),[1 1; -1 1]]);
 
 % instantiate halfspaces
@@ -39,25 +40,19 @@ h_below = halfspace([0 1],-3);
 
 % check if correct results for intersection
 % Z fully contained
-res_above = isIntersecting(h_above,Z);
+res(end+1,1) = isIntersecting(h_above,Z);
 % Z touching halfspace on upper boundary (all contained)
-res_upperboundary = isIntersecting(h_upperboundary,Z);
+res(end+1,1) = isIntersecting(h_upperboundary,Z);
 % Z partly contained, intersected
-res_through = isIntersecting(h_through,Z);
+res(end+1,1) = isIntersecting(h_through,Z);
 % Z touching halfspace on lower boundary (all out)
-res_lowerboundary = isIntersecting(h_lowerboundary,Z);
+res(end+1,1) = isIntersecting(h_lowerboundary,Z);
 % Z fully outside
-res_below = isIntersecting(h_below,Z);
+res(end+1,1) = ~isIntersecting(h_below,Z);
 
-% compare results
-res_zon = res_above && res_upperboundary && res_through && ...
-    res_lowerboundary && ~res_below;
-% -------------------------------------------------------------------------
 
-% TEST 2: Intervals -------------------------------------------------------
-% instantiate zonotope
+% 2D interval
 I = interval([-2; -1],[1; 3]);
-% plot(I);
 
 % instantiate halfspaces
 h_above = halfspace([1 0],2);
@@ -68,23 +63,18 @@ h_below = halfspace([1 0],-4);
 
 % check if correct results for intersection
 % I fully contained
-res_above = isIntersecting(h_above,I);
+res(end+1,1) = isIntersecting(h_above,I);
 % I touching halfspace on upper boundary (all contained)
-res_upperboundary = isIntersecting(h_upperboundary,I);
+res(end+1,1) = isIntersecting(h_upperboundary,I);
 % I partly contained, intersected
-res_through = isIntersecting(h_through,I);
+res(end+1,1) = isIntersecting(h_through,I);
 % I touching halfspace on lower boundary (all out)
-res_lowerboundary = isIntersecting(h_lowerboundary,I);
+res(end+1,1) = isIntersecting(h_lowerboundary,I);
 % I fully outside
-res_below = isIntersecting(h_below,I);
-
-% compare results
-res_int = res_above && res_upperboundary && res_through && ...
-    res_lowerboundary && ~res_below;
-% -------------------------------------------------------------------------
+res(end+1,1) = ~isIntersecting(h_below,I);
 
 
-% combine tests
-res = res_zon && res_int; %% res_e;
+% combine results
+res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

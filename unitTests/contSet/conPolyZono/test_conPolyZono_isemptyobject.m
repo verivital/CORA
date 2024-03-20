@@ -1,7 +1,7 @@
 function res = test_conPolyZono_isemptyobject
 % test_conPolyZono_isemptyobject - unit test function of isemptyobject
 %
-% Syntax:  
+% Syntax:
 %    res = test_conPolyZono_isemptyobject
 %
 % Inputs:
@@ -16,25 +16,31 @@ function res = test_conPolyZono_isemptyobject
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      03-June-2022
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       03-June-2022
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-% instantiate constrained polynomial zonotopes
-cPZ1 = conPolyZono();
+res = true(0);
 
+% empty constrained polynomial zonotope
+cPZ = conPolyZono.empty(2);
+res(end+1,1) = isemptyobject(cPZ);
+
+% 2D constrained polynomial zonotope
 c = [0;0];
 G = [1 0;0 1];
-expMat = [1 0;0 1];
+E = [1 0;0 1];
 A = [1 -1];
 b = 0;
-expMat_ = [2 0;0 1];
-cPZ2 = conPolyZono(c,G,expMat,A,b,expMat_);
+EC = [2 0;0 1];
+cPZ = conPolyZono(c,G,E,A,b,EC);
+res(end+1,1) = ~isemptyobject(cPZ);
 
-% check results
-res = isemptyobject(cPZ1) && ~isemptyobject(cPZ2);
 
-%------------- END OF CODE --------------
+% combine results
+res = all(res);
+
+% ------------------------------ END OF CODE ------------------------------

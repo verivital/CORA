@@ -47,25 +47,25 @@ function Z = minkDiff(minuend, subtrahend, varargin)
 %
 % See also: mtimes, conZonotope/minkDiff
 
-% Author:       Matthias Althoff, Niklas Kochdumper, Tobias Ladner
-% Written:      10-June-2015
-% Last update:  22-July-2015
-%               05-August-2015
-%               20-August-2015
-%               30-July-2016
-%               14-November-2016
-%               05-February-2021 (NK, added alternative algorithm)
-%               06-May-2021 (MA, check added whether minuend is full dimensional)
-%               17-June-2022 (MA, case added that minuend and subtrahend are degenerate)
-%               24-June-2022 (MA, under-approximation and over-approximation added)
-%               01-July-2022 (MA, coarser and faster method for over-approximation added)
-%               15-July-2022 (MA, method from Raghuraman & Koeln added)
-%               27-July-2022 (MA, method from Raghuraman & Koeln rewritten for linprog)
-%               09-November-2022 (MW, rename 'minkDiff', rename methods)
-%               25-May-2023 (TL, added 'exact' for aligned zonotopes)
-% Last revision:25-May-2023 (TL, restructuring; more descriptive error messages)
+% Authors:       Matthias Althoff, Niklas Kochdumper, Tobias Ladner
+% Written:       10-June-2015
+% Last update:   22-July-2015
+%                05-August-2015
+%                20-August-2015
+%                30-July-2016
+%                14-November-2016
+%                05-February-2021 (NK, added alternative algorithm)
+%                06-May-2021 (MA, check added whether minuend is full dimensional)
+%                17-June-2022 (MA, case added that minuend and subtrahend are degenerate)
+%                24-June-2022 (MA, under-approximation and over-approximation added)
+%                01-July-2022 (MA, coarser and faster method for over-approximation added)
+%                15-July-2022 (MA, method from Raghuraman & Koeln added)
+%                27-July-2022 (MA, method from Raghuraman & Koeln rewritten for linprog)
+%                09-November-2022 (MW, rename 'minkDiff', rename methods)
+%                25-May-2023 (TL, added 'exact' for aligned zonotopes)
+% Last revision: 25-May-2023 (TL, restructuring; more descriptive error messages)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % list implemented algorithms
 implementedAlgs = {'exact','inner','outer','outer:coarse','outer:scaling', ...
@@ -101,7 +101,8 @@ end
 % check if subtrahend is zonotope
 if ~isa(subtrahend,'zonotope')
     if ~(strcmp(method, 'outer:scaling') && isa(subtrahend,'interval'))
-        warning('CORA warning: zonotope/minkDiff: Subtrahend is not a zonotope. Enclosing it with a zonotope.')
+        warning(['CORA warning: zonotope/minkDiff: '...
+            'Subtrahend is not a zonotope. Enclosing it with a zonotope.'])
     end
     % enclose second set with zonotope
     subtrahend = zonotope(subtrahend);
@@ -123,101 +124,107 @@ if isFullDim(minuend)
 
     % compute Minkowski difference with the approach from [1]
     if strcmpi(method, 'exact')
-        if areAligned(minuend, subtrahend)
+        if aux_areAligned(minuend, subtrahend)
             % exact solution for aligned sets according to [1,Prop.5]
-            Z = zonotope(minuend.Z - subtrahend.Z);
+            Z = zonotope(minuend.c - subtrahend.c, minuend.G - subtrahend.G);
 
         elseif n == 2
             % same method as 'inner' [1,Prop.6]
-            Z = minkDiffZono(minuend, subtrahend, method);
+            Z = aux_minkDiffZono(minuend, subtrahend, method);
 
         else
-            throw(CORAerror('CORA:wrongValue', 'third', 'No exact algorithm found: Sets have to be 2-dimensional or algined.'))
+            throw(CORAerror('CORA:wrongValue', 'third',...
+                'No exact algorithm found: Sets have to be 2-dimensional or aligned.'))
         end
 
     elseif strcmp(method, 'outer') || strcmp(method, 'outer:coarse') || ...
             strcmp(method, 'inner') || strcmp(method, 'approx')
-        Z = minkDiffZono(minuend, subtrahend, method);
+        Z = aux_minkDiffZono(minuend, subtrahend, method);
 
     elseif strcmp(method, 'inner:conZonotope')
         % compute Minkowski difference using constrained zonotopes
-        Z = minkDiffConZono(minuend, subtrahend);
+        Z = aux_minkDiffConZono(minuend, subtrahend);
 
     elseif strcmp(method, 'inner:RaghuramanKoeln')
         % compute Minkowski difference using [2]
-        Z = RaghuramanKoeln(minuend, subtrahend);
+        Z = aux_RaghuramanKoeln(minuend, subtrahend);
 
     elseif strcmp(method, 'outer:scaling')
         % compute  Minkowski difference using scaling
-        Z = minkDiffOuterInterval(minuend,subtrahend);
+        Z = aux_minkDiffOuterInterval(minuend,subtrahend);
     end
 
 else
     if isFullDim(subtrahend)
-        % display that minuend has to be full-dimensional if subtrahend is
-        % full-dimensional
-        throw(CORAerror('CORA:wrongValue', 'first', 'full-dimensional zonotope'));
-    else
-        if rank(minuend) == rank(subtrahend)
-            % transform the minuend and subtrahend into a space where the
-            % minuend is full-dimensional using the singular value decomposition
+        % Minkowski difference of degenerate minuend and full-dimensional
+        % subtrahend is the empty set
+        Z = zonotope.empty(n);
+        return;
+    end
 
-            % range of minuend
-            [U, S] = svd(generators(minuend));
-            newDim = nnz(~all(withinTol(S,0))); % nr. of new dimensions
-            P_minuend = U(1:newDim, :); % projection matrix
-            
-            % range of subtrahend
-            [U, S] = svd(generators(subtrahend));
-            newDim = nnz(~all(withinTol(S,0))); % nr. of new dimensions
-            P_subtrahend = U(1:newDim, :); % projection matrix
-            
-            % Is the range of the minuend and subtrahend equal?
-            if all(size(P_minuend) == size(P_subtrahend)) ...
-                    && norm(P_minuend-P_subtrahend) <= 1e-10
-                % project
-                minuend_proj = P_minuend * minuend; % transformed minuend
-                subtrahend_proj = P_minuend * subtrahend; % transformed subtrahend
-                
-                % solve problem in the transformed domain
-                Z_proj = minkDiff(minuend_proj, subtrahend_proj, method);
-                
-                % transform solution back into the original domain
-                Z = pinv(P_minuend) * Z_proj;
+    if rank(minuend) == rank(subtrahend)
+        % transform the minuend and subtrahend into a space where the
+        % minuend is full-dimensional using the singular value decomposition
 
-            else
-                % no solution exists
-                throw(CORAerror('CORA:wrongValue', 'first/second', 'for non full-dimensional zonotopes: projection matrix found by svd has to be equal'));
-            end
+        % range of minuend
+        [U, S] = svd(generators(minuend));
+        newDim = nnz(~all(withinTol(S,0))); % nr. of new dimensions
+        P_minuend = U(1:newDim, :); % projection matrix
+        
+        % range of subtrahend
+        [U, S] = svd(generators(subtrahend));
+        newDim = nnz(~all(withinTol(S,0))); % nr. of new dimensions
+        P_subtrahend = U(1:newDim, :); % projection matrix
+        
+        % Is the range of the minuend and subtrahend equal?
+        if all(size(P_minuend) == size(P_subtrahend)) ...
+                && norm(P_minuend-P_subtrahend) <= 1e-10
+            % project
+            minuend_proj = P_minuend * minuend; % transformed minuend
+            subtrahend_proj = P_minuend * subtrahend; % transformed subtrahend
+            
+            % solve problem in the transformed domain
+            Z_proj = minkDiff(minuend_proj, subtrahend_proj, method);
+            
+            % transform solution back into the original domain
+            Z = pinv(P_minuend) * Z_proj;
+
         else
             % no solution exists
-            throw(CORAerror('CORA:wrongValue', 'first/second', 'for non full-dimensional zonotopes: rank of generator matrix must be equal'));
+            throw(CORAerror('CORA:wrongValue', 'first/second',...
+                ['for non full-dimensional zonotopes: ', ...
+                'projection matrix found by svd has to be equal']));
         end
+    else
+        % no solution exists
+        throw(CORAerror('CORA:wrongValue', 'first/second',...
+            ['for non full-dimensional zonotopes: ', ...
+            'rank of generator matrix must be equal']));
     end
 end
 
 end
 
 
-% Auxiliary Functions -----------------------------------------------------
+% Auxiliary functions -----------------------------------------------------
 
-function Z = minkDiffZono(minuend, subtrahend, method)
+function Z = aux_minkDiffZono(minuend, subtrahend, method)
 % compute Minkowski difference using the approach in [1]
 
 %% determine generators to be kept
 % obtain halfspace representation
-P = mptPolytope(minuend);
-HorigTwice = get(P, 'H');
-KorigTwice = get(P, 'K');
+P = polytope(minuend);
+HorigTwice = P.A;
+KorigTwice = P.b;
 Horig = HorigTwice(1:0.5*end, :);
 
 % nr of subtrahend generators
-subtrahendGens = length(subtrahend.Z(1, :)) - 1;
+subtrahendGens = size(subtrahend.G,2);
 
 % intersect polytopes according to Theorem 3 of [1]
-delta_K = HorigTwice * subtrahend.Z(:, 1);
+delta_K = HorigTwice * subtrahend.c;
 for i = 1:subtrahendGens
-    delta_K = delta_K + abs(HorigTwice*subtrahend.Z(:, i+1));
+    delta_K = delta_K + abs(HorigTwice*subtrahend.G(:, i));
 end
 Korig_new = KorigTwice - delta_K;
 
@@ -225,19 +232,19 @@ C = Horig;
 d = Korig_new(1:0.5*end, :);
 
 %compute center
-c = minuend.Z(:, 1) - subtrahend.Z(:, 1);
+c = minuend.c - subtrahend.c;
 
 %obtain minuend generators
-G = minuend.Z(:, 2:end);
+G = minuend.G;
 
 %% reverse computation from halfspace generation
 n = dim(minuend);
 if strcmp(method, 'inner') || (strcmp(method, 'exact') && n == 2)
-    delta_d = d - C * minuend.Z(:, 1) + C * subtrahend.Z(:, 1);
+    delta_d = d - C * minuend.c + C * subtrahend.c;
     A_abs = abs(C*G);
     dims = length(A_abs(1, :));
     % vector of cost function
-    f = vecnorm(minuend.Z(:, 2:end), 2, 1);
+    f = vecnorm(minuend.G, 2, 1);
     % A_abs x <= delta_d && x >= 0
     [alpha, ~, exitflag] = linprog(-f, [A_abs; -eye(dims)], [delta_d; zeros(dims, 1)]);
     if isempty(alpha) || exitflag ~= 1
@@ -249,7 +256,7 @@ if strcmp(method, 'inner') || (strcmp(method, 'exact') && n == 2)
 elseif strcmp(method, 'outer') || strcmp(method, 'outer:coarse')
     % reduce delta_d using linear programming
     if strcmp(method, 'outer')
-        d_shortened = tightenHalfspaces(HorigTwice, Korig_new);
+        d_shortened = aux_tightenHalfspaces(HorigTwice, Korig_new);
     else
         d_shortened = Korig_new;
     end
@@ -257,15 +264,15 @@ elseif strcmp(method, 'outer') || strcmp(method, 'outer:coarse')
     % is set empty?
     if isempty(d_shortened)
         % return empty set with correct dimensions
-        Z = zonotope(zeros(n, 0));
+        Z = zonotope.empty(n);
         return
     else
         % vector of cost function
-        f = vecnorm(minuend.Z(:, 2:end), 2, 1);
+        f = vecnorm(minuend.G, 2, 1);
         % obtain unrestricted A_abs and delta_d
         C = Horig;
         d = d_shortened(1:0.5*end, :);
-        delta_d = d - C * minuend.Z(:, 1) + C * subtrahend.Z(:, 1);
+        delta_d = d - C * minuend.c + C * subtrahend.c;
         A_abs = abs(C*G);
         dims = length(A_abs(1, :));
         % A_abs x >= delta_d && x >= 0
@@ -273,14 +280,15 @@ elseif strcmp(method, 'outer') || strcmp(method, 'outer:coarse')
     end
 
 elseif strcmp(method, 'approx')
-    delta_d = d - C * minuend.Z(:, 1) + C * subtrahend.Z(:, 1);
+    delta_d = d - C * minuend.c + C * subtrahend.c;
     A_abs = abs(C*G);
     % use pseudoinverse to compute an approximation
     alpha = pinv(A_abs) * delta_d; %solve linear set of equations using the pseudoinverse
 
 else
-    % should already be catched before
-    throw(CORAerror('CORA:specialError',sprintf("Unkown method: '%s'",method)))
+    % should already be caught before
+    throw(CORAerror('CORA:specialError',...
+        sprintf("Unknown method: '%s'",method)))
 end
 
 % instantiate Z
@@ -288,14 +296,16 @@ Gnew = generators(minuend) * diag(alpha);
 % remove all zero columns
 Gnew = Gnew(:,~all(Gnew == 0,1));
 Z = zonotope(c, Gnew);
+
 end
 
-function Z = minkDiffOuterInterval(minuend,subtrahend)
+function Z = aux_minkDiffOuterInterval(minuend,subtrahend)
 % compute  Minkowski difference using scaling
 % subtrahend must be an interval
 
-if ~isInterval(subtrahend)
-    throw(CORAerror('CORA:wrongValue','second',sprintf("interval (using method='outer:scaling')")))
+if ~representsa_(subtrahend,'interval',eps)
+    throw(CORAerror('CORA:wrongValue','second',...
+        sprintf("interval (using method='outer:scaling')")))
 end
 
 % scale using interval enclosure
@@ -306,7 +316,7 @@ Z = enlarge(minuend, scale); % outer
 
 end
 
-function Z = minkDiffConZono(Z1, Z2)
+function Z = aux_minkDiffConZono(Z1, Z2)
 % compute Minkowski difference based on constrained zonotopes
 
 % convert first zonotope to constrained zonotope
@@ -323,10 +333,11 @@ for i = 1:size(G, 2)
 end
 
 % compute zonotope inner-approximation of the constrained zonotope
-Z = innerApprox(cZ);
+Z = aux_innerApprox(cZ);
+
 end
 
-function Z = innerApprox(cZ)
+function Z = aux_innerApprox(cZ)
 % inner-approximate a constrained zonotope with a zonotope
 
 % compute point satisfying all constraints with pseudo inverse
@@ -351,7 +362,7 @@ A = [A; zeros(m_), -eye(m_)];
 b = [b_; zeros(m_, 1)];
 
 % construct objective function of the linear program
-f = -[zeros(1, m_), sum((cZ.Z(:, 2:end) * T).^2, 1)];
+f = -[zeros(1, m_), sum((cZ.G * T).^2, 1)];
 
 % solve linear program to get interval inner-approximation of polytope
 persistent options
@@ -364,7 +375,7 @@ end
 % check if constrained zonotope is empty
 if isempty(x) || exitflag ~= 1
     % return empty set with correct dimensions
-    Z = zonotope(zeros(dim(cZ), 0));
+    Z = zonotope.empty(dim(cZ));
     return
 end
 
@@ -378,13 +389,14 @@ off = p_ + T * center(int);
 S = T * diag(rad(int));
 
 % construct final zonotope
-c = cZ.Z(:, 1) + cZ.Z(:, 2:end) * off;
-G = cZ.Z(:, 2:end) * S;
+c = cZ.c + cZ.G * off;
+G = cZ.G * S;
 
 Z = zonotope(c, G);
+
 end
 
-function d_new = tightenHalfspaces(C, delta_d)
+function d_new = aux_tightenHalfspaces(C, delta_d)
 % tighten halfspaces so that the polytope is identical with the same number
 % of halfspaces
 
@@ -401,9 +413,10 @@ else
     % values have the opposite sign
     d_new = -d_new;
 end
+
 end
 
-function Z = RaghuramanKoeln(Z_m, Z_s)
+function Z = aux_RaghuramanKoeln(Z_m, Z_s)
 % Solves the Minkowski difference using the method described in
 % [2, Theorem 7]. A direct implementation of [2, Theorem 7] can be
 % found in the corresponding unit test. Here, we transform the linear
@@ -469,21 +482,24 @@ f = [-ones(n_m+n_s, 1); zeros(2*n_m*(n_m + 2 * n_s + 1)+n, 1)];
 % solve linear programming problem
 [x, ~, exitflag] = linprog(f, A, b, A_eq, b_eq);
 
-if exitflag ~= 1
-    % no solution exists
-    throw(CORAerror("CORA:specialError", 'No solution exists.'))
-else
+if exitflag == 1
     % extract phi
     phi = x(1:n_m+n_s);
     % extract c_d
     c_d = x(end-n+1:end);
     % result
     Z = zonotope([c_d, [G_m, G_s] * diag(phi)]);
+elseif exitflag == -2
+    % no feasible point found -> empty
+    Z = zonotope.empty(n);
+else
+    % unknown error
+    throw(CORAerror("CORA:specialError", 'No solution exists.'))
 end
 
 end
 
-function res = areAligned(minuend, subtrahend)
+function res = aux_areAligned(minuend, subtrahend)
 % check if generators are aligned
 
 % extract generators
@@ -516,4 +532,4 @@ end
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

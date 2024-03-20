@@ -4,15 +4,21 @@
 # define variables
 variables:
   DO_CI: "true"
-  RUN_ALL_TESTS: "false" # or end commit message with '--ci-run-all'
+  # append commit message with '--ci-run-ext'
+  # append commit message with '--ci-run-merge'
+  # append commit message with '--ci-run-release'
+  # append commit message with '--ci-run-examples'
+  # append commit message with '--ci-run-benchmarks'
 
 # define base settings
 .base-image:
   image:
-    name: tobiasladnertum/cora:r2022a-dl
+    name: tobiasladnertum/cora:r2023b
     entrypoint: [""]
   tags:
     - matlab
+  # default timeout
+  timeout: 1h
   rules:
     - if: $DO_CI == "true"
       when: always
@@ -21,8 +27,10 @@ variables:
 # define stages
 stages:
   - init
-  - runTestSuite-short
-  - runTestSuite-all
+  - test-short
+  - test-extended
+  - test-examples
+  - test-benchmarks
   - ci-status
 
 # Init stage ----------------------------------------------
@@ -48,7 +56,7 @@ test-job:
   script: 
     - matlab -batch "addpath(genpath('.')); testLong_zonotope_reduce"
 
-# Short test stage ----------------------------------------
+# Short test stage --------------------------------------------------------
 
 # define base run
 .base-run:
@@ -56,6 +64,9 @@ test-job:
   variables:
     testSuite: 'short'
   script: 
+    # reset CORA
+    - matlab -batch "addpath(genpath('.')); resetCORA();"
+
     # run testSuite
     - matlab -batch "addpath(genpath('.')); runTestSuite('$testSuite');"
 
@@ -64,51 +75,112 @@ test-job:
 
     # push results to bitbucket
     - BUILD_STATUS=$(<failed.txt) RESULT_TEXT=$(<resultText.txt) ./unitTests/ci/build_status
+    - rm resultText.txt
+
+    # reset CORA
+    - matlab -batch "addpath(genpath('.')); resetCORA();"
+    - if [ -d "./DLT_CustomLayers" ]; then rm -Rf ./DLT_CustomLayers; fi
     
     # exit with exit code
     - EXIT_CODE=$(<failed.txt)
+    - rm failed.txt
     - echo "Exiting with code $EXIT_CODE."
     - exit $EXIT_CODE
   after_script: # all done in script
 
 # run short tests
 runTestSuiteShort:
-  stage: runTestSuite-short
+  stage: test-short
   extends: .base-run
   variables:
     testSuite: 'short'
 
-# All test stage -------------------------------------------
+# Extended test stage -----------------------------------------------------
 
-# extends base run settings to always run tests for specific branches or if $RUN_ALL_TESTS == "true"
-.base-run-all:
-  stage: runTestSuite-all
+# extends base run settings
+.base-run-ext:
+  stage: test-extended
   extends: .base-run
   rules: 
-    # run all tests if commit message contains '--ci-run-all' or always on specific branches
+    # run extended tests if commit message contains '--ci-run-ext' or always on specific branches
     - if: $DO_CI == "true" && 
-            ($CI_COMMIT_MESSAGE =~ /^(.|\r|\n)*--ci-run-all(.|\r|\n)*/
-                || $RUN_ALL_TESTS == "true" 
+            ($CI_COMMIT_MESSAGE =~ /^(.|\r|\n)*--ci-run-ext(.|\r|\n)*/
+                || $CI_COMMIT_MESSAGE =~ /^(.|\r|\n)*--ci-run-merge(.|\r|\n)*/
+                || $CI_COMMIT_MESSAGE =~ /^(.|\r|\n)*--ci-run-release(.|\r|\n)*/
                 || $CI_COMMIT_BRANCH == "PUBLIC" 
                 || $CI_COMMIT_BRANCH == "public-bugfix" 
                 || $CI_COMMIT_BRANCH == "devgeneral" 
-                || $CI_COMMIT_BRANCH == "nn-main"
             )
       when: always
 
 # run long duration tests
 runTestSuiteLong:
-  extends: .base-run-all
+  extends: .base-run-ext
+  timeout: 2h
   variables:
     testSuite: 'long'
 
 # run nn tests
 runTestSuiteNN:
-  extends: .base-run-all
+  extends: .base-run-ext
   variables:
     testSuite: 'nn'
+  rules: 
+    - !reference [.base-run-ext, rules]
+    # always run on 'nn-*' branches
+    - if: $DO_CI == "true" && $CI_COMMIT_BRANCH =~ "/^nn-.*/"
+      when: always
 
-# CI status block ------------------------------------------
+# run flaky tests
+runTestSuiteFlaky:
+  extends: .base-run-ext
+  variables:
+    testSuite: 'flaky'
+
+# Examples test stage ---------------------------------------------------------
+
+# extends base run settings
+.base-run-examples:
+  stage: test-examples
+  extends: .base-run
+  timeout: 24h
+  rules: 
+    # run all tests if commit message contains '--ci-run-examples'
+    - if: $DO_CI == "true" && 
+            ($CI_COMMIT_MESSAGE =~ /^(.|\r|\n)*--ci-run-examples(.|\r|\n)*/
+                || $CI_COMMIT_MESSAGE =~ /^(.|\r|\n)*--ci-run-merge(.|\r|\n)*/
+                || $CI_COMMIT_MESSAGE =~ /^(.|\r|\n)*--ci-run-release(.|\r|\n)*/
+            )
+      when: always
+
+# run examples tests
+runTestSuiteExamples:
+  extends: .base-run-examples
+  variables:
+    testSuite: 'examples'
+
+# Benchmark test stage ---------------------------------------------------------
+
+# extends base run settings
+.base-run-benchmarks:
+  stage: test-benchmarks
+  extends: .base-run
+  timeout: 24h
+  rules: 
+    # run all tests if commit message contains '--ci-run-benchmarks'
+    - if: $DO_CI == "true" && 
+            ($CI_COMMIT_MESSAGE =~ /^(.|\r|\n)*--ci-run-benchmarks(.|\r|\n)*/
+                || $CI_COMMIT_MESSAGE =~ /^(.|\r|\n)*--ci-run-release(.|\r|\n)*/
+            )
+      when: always
+
+# run benchmarks tests
+runTestSuiteBenchmarks:
+  extends: .base-run-benchmarks
+  variables:
+    testSuite: 'benchmarks'
+
+# CI status block ---------------------------------------------------------
 
 failure:
   stage: ci-status

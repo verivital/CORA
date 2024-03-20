@@ -1,7 +1,7 @@
 function res = test_nonlinearSys_nonlinearSys
 % test_nonlinearSys_nonlinearSys - unit test for constructor
 %
-% Syntax:  
+% Syntax:
 %    res = test_nonlinearSys_nonlinearSys
 %
 % Inputs:
@@ -16,12 +16,12 @@ function res = test_nonlinearSys_nonlinearSys
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      22-November-2022
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       22-November-2022
+% Last update:   10-November-2023
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % assume true, wait for failure
 res = true;
@@ -74,6 +74,13 @@ if sys.dim ~= 3 || sys.nrOfInputs ~= 1 || sys.nrOfOutputs ~= 3
     res = false;
 end
 sys = nonlinearSys(sysname,f_3D,3,1);
+if ~strcmp(sysname,sys.name) ...
+        || sys.dim ~= 3 || sys.nrOfInputs ~= 1 || sys.nrOfOutputs ~= 3
+    res = false;
+end
+% explicitly state that there are no inputs, but CORA needs at least one
+% input internally...
+sys = nonlinearSys(sysname,f_3D,3,0);
 if ~strcmp(sysname,sys.name) ...
         || sys.dim ~= 3 || sys.nrOfInputs ~= 1 || sys.nrOfOutputs ~= 3
     res = false;
@@ -141,4 +148,4 @@ end
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

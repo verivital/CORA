@@ -1,7 +1,7 @@
 function p = randPoint_(hyp,N,type,varargin)
 % randPoint_ - generates a random point within a constrained hyperplane
 %
-% Syntax:  
+% Syntax:
 %    p = randPoint_(hyp)
 %    p = randPoint_(hyp,N)
 %    p = randPoint_(hyp,N,type)
@@ -25,14 +25,14 @@ function p = randPoint_(hyp,N,type,varargin)
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: interval/randPoint
+% See also: contSet/randPoint, interval/randPoint
 
-% Author:        Victor Gassmann
+% Authors:       Victor Gassmann
 % Written:       10-June-2022
 % Last update:   ---
 % Last revision: 27-March-2023 (MW, rename randPoint_)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % 'type' standard supported
 if ~strcmp(type,'standard')
@@ -46,9 +46,9 @@ if ~(isempty(hyp.C) && all(hyp.d==0))
         'Only implemented for hyperplanes without constraints.'));
 end
 
-% get properties (a'*x=b)
-a = hyp.h.c;
-b = hyp.h.d;
+% get properties (a*x=b)
+a = hyp.a';
+b = hyp.b;
 n = length(a);
 
 % normalization
@@ -77,4 +77,4 @@ end
 % add center to each sampled point
 p = Dx + c;
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

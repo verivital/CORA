@@ -2,7 +2,7 @@ function res = test_intervalMatrix_matZonotope
 % test_intervalMatrix_matZonotope - unit test function for conversion to
 %    matrix zonotopes 
 % 
-% Syntax:  
+% Syntax:
 %    res = test_intervalMatrix_matZonotope
 %
 % Inputs:
@@ -17,17 +17,14 @@ function res = test_intervalMatrix_matZonotope
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      18-June-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       18-June-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-% empty interval matrix
-intMat = intervalMatrix();
-matZ = matZonotope(intMat);
-res = all(dim(matZ) == [0,0]);
+res = true(0);
 
 % only one column
 c = [1 2 3 4]';
@@ -51,4 +48,4 @@ res(end+1,1) = all(dim(matZ) == [2,3]);
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

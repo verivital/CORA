@@ -1,7 +1,7 @@
 function res = test_capsule_interval
 % test_capsule_interval - unit test function of interval conversion
 %
-% Syntax:  
+% Syntax:
 %    res = test_capsule_interval
 %
 % Inputs:
@@ -16,22 +16,23 @@ function res = test_capsule_interval
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      24-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       24-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
+
+res = true(0);
 
 % empty capsule
-C = capsule();
+n = 2;
+C = capsule.empty(n);
 I = interval(C);
-res = isempty(I);
+res(end+1,1) = representsa_(I,'emptySet',eps) && dim(I) == n;
 
 % full-dimensional capsule
-c = [2; 0; -1];
-g = [0.2; -0.7; 0.4];
-r = 1;
+c = [2; 0; -1]; g = [0.2; -0.7; 0.4]; r = 1;
 C = capsule(c,g,r);
 % convert to interval
 I = interval(C);
@@ -39,24 +40,28 @@ I = interval(C);
 res(end+1,1) = contains(I,C);
 
 % one-dimensional capsule
-C = capsule(2,1,0);
+c = 2; g = 1; r = 0;
+C = capsule(c,g,r);
 I = interval(C);
 res(end+1,1) = isequal(I,interval(1,3));
 
 % two-dimensional capsule with axis-aligned generator and no radius
-C = capsule([1;-1],[1;0],0);
+c = [1;-1]; g = [1;0]; r = 0;
+C = capsule(c,g,r);
 I = interval(C);
 res(end+1,1) = isequal(I,interval([0;-1],[2;-1]));
 
 % two-dimensional capsule with all-zero generator and (no) radius
-C = capsule([0;-1],[0;0],1);
+c = [0;-1]; g = [0;0]; r = 1;
+C = capsule(c,g,r);
 I = interval(C);
 res(end+1,1) = isequal(I,interval([-1;-2],[1;0]));
-C = capsule([0;-1],[0;0],0);
+c = [0;-1]; g = [0;0]; r = 0;
+C = capsule(c,g,r);
 I = interval(C);
 res(end+1,1) = isequal(I,interval([0;-1]));
 
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

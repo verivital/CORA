@@ -6,7 +6,7 @@ function res = testLong_linearSysDT_observe_08_pedestrian()
 % It is checked whether the enclosing interval of the final observed set 
 % is close to an interval provided by a previous solution that has been saved
 %
-% Syntax:  
+% Syntax:
 %    res = testLong_linearSysDT_observe_08_pedestrian
 %
 % Inputs:
@@ -15,15 +15,15 @@ function res = testLong_linearSysDT_observe_08_pedestrian()
 % Outputs:
 %    res - true/false 
 
-% Author:       Matthias Althoff
-% Written:      03-Mar-2021
-% Last update:  ---
-% Last revision:---
+% Authors:       Matthias Althoff
+% Written:       03-March-2021
+% Last update:   31-January-2023 (TL, updated IH_saved for FRad-C in >R2022a)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 
-%% Load pedestrian model
+% Load pedestrian model ---------------------------------------------------
 load pedestrianModel pedestrian params options simRes
 
 
@@ -51,10 +51,10 @@ Estimator = {
 % init
 resPartial = [];
 
-% set accuracy
-accuracy = 1e-6;
+% set tolerance
+tol = 1e-6;
 
-%% perform evaluation
+% perform evaluation ------------------------------------------------------
 % loop over estimators
 for iEst = 4:length(Estimator)
 
@@ -98,9 +98,10 @@ for iEst = 4:length(Estimator)
     elseif strcmp(options.alg,'PRad-C') 
         IH_saved = [];
     elseif strcmp(options.alg,'FRad-C') 
+        % TL: numerically unstable...
         IH_saved = interval( ...
-            [0.9640768797965156; 2.0499091866482728; -0.9252029474417984; -0.2735789629933951], ...
-            [1.4042587106429512; 2.4675171713777320; 1.0865109361481187; 1.7289713815416603]);
+            [ 0.9592223696721490; 2.0268025113919803; -0.9290244580855602; -0.3052542874485443 ], ...
+            [ 1.4089942984695809; 2.4885219977302739; 1.0908607144881430; 1.7537703992533271 ]);
     elseif strcmp(options.alg,'PRad-D') 
         IH_saved = [];
     elseif strcmp(options.alg,'PRad-E') 
@@ -127,12 +128,13 @@ for iEst = 4:length(Estimator)
         IH_saved = [];
     end
 
-    %check if slightly bloated versions enclose each other
-    resPartial(end+1) = isequal(IH,IH_saved,accuracy);
+    % check equality with tolerance
+    resPartial(end+1) = isequal(IH,IH_saved,tol);
 end
 
 % final result
 res = all(resPartial);
 
+end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

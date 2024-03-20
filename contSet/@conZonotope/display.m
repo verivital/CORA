@@ -2,7 +2,7 @@ function display(cZ)
 % display - Displays the properties of a conZonotope object (center,
 %    generators, and constraints for the factors) on the command window
 %
-% Syntax:  
+% Syntax:
 %    display(cZ)
 %
 % Inputs:
@@ -22,47 +22,49 @@ function display(cZ)
 %
 % See also: none
 
-% Author:        Dmitry Grebenyuk, Mark Wetzlinger
+% Authors:       Dmitry Grebenyuk, Mark Wetzlinger
 % Written:       20-December-2017
 % Last update:   01-May-2020 (MW, added empty case)
 %                09-June-2020 (MW, restrict number of shown generators)
 % Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-if isemptyobject(cZ)
+% special cases
+if representsa(cZ,'emptySet')
+    dispEmptySet(cZ,inputname(1));
+    return
+elseif representsa(cZ,'fullspace')
+    dispRn(cZ,inputname(1));
+    return
+end
+
+
+fprintf(newline);
+disp(inputname(1) + " =");
+fprintf(newline);
+
+% display center and generators
+disp('c: ');
+disp(cZ.c);
+
+G = cZ.G;
+displayGenerators(G,DISPLAYDIM_MAX,'G');
+
+%display constraint system
+if isempty(cZ.A) && isempty(cZ.b)
+    disp('Constraint system (Ax = b): no constraints.')
+    fprintf(newline);
     
-    dispEmptyObj(cZ,inputname(1));
-
 else
-    
-    fprintf(newline);
-    disp(inputname(1) + " =");
-    fprintf(newline);
+    disp('Constraint system (Ax = b):')
 
-    % display center and generators
-    disp('c: ');
-    disp(cZ.Z(:,1));
+    displayGenerators(cZ.A,DISPLAYDIM_MAX,'A');
 
-    G = cZ.Z(:,2:end);
-    displayGenerators(G,DISPLAYDIM_MAX,'G');
-    
-    %display constraint system
-    if isempty(cZ.A) && isempty(cZ.b)
-        disp('Constraint system (Ax = b): no constraints.')
-        fprintf(newline);
-        
-    else
-        disp('Constraint system (Ax = b):')
-
-        displayGenerators(cZ.A,DISPLAYDIM_MAX,'A');
-
-        disp('b: ');
-        disp(cZ.b);
-    end
-    
+    disp('b: ');
+    disp(cZ.b);
 end
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

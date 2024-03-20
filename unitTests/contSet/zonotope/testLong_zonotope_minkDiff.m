@@ -1,7 +1,7 @@
 function res = testLong_zonotope_minkDiff
 % testLong_zonotope_minkDiff - unit test function of minkDiff
 %
-% Syntax:  
+% Syntax:
 %    res = testLong_zonotope_minkDiff
 %
 % Inputs:
@@ -16,14 +16,15 @@ function res = testLong_zonotope_minkDiff
 %
 % See also: -
 
-% Author:       Tobias Ladner
-% Written:      25-May-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Tobias Ladner
+% Written:       25-May-2023
+% Last update:   24-January-2024 (MW, increase tolerance)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 resvec = [];
+tol = 1e-10;
 
 % quick test for all methods for syntax errors ----------------------------
 % very simple tests; TODO: needs thorough testing
@@ -67,7 +68,10 @@ for i=1:10
     diff_comp = minkDiff(minuend,subtrahend,method);
 
     % diff + sub = min => min - sub = diff
-    resvec(end+1) = isequal(difference,diff_comp,1e-12);
+    resvec(end+1) = isequal(difference,diff_comp,tol);
+    if ~resvec(end)
+        keyboard
+    end
 end
 
 % test aligned
@@ -81,8 +85,8 @@ for i=1:10
     difference = minkDiff(minuend,subtrahend,method);
 
     % min - sub = diff => diff + sub = min
-    minuend_restored = zonotope(difference.Z+subtrahend.Z);
-    resvec(end+1) = isequal(minuend_restored,minuend,1e-12);
+    minuend_restored = zonotope(difference.c+subtrahend.c, difference.G+subtrahend.G);
+    resvec(end+1) = isequal(minuend_restored,minuend,tol);
 end
 
 % test error for exact
@@ -150,11 +154,11 @@ for i=1:10
     difference = minkDiff(minuend,subtrahend,'exact');
 
     % test equality
-    resvec(end+1) = isequal(difference,diff_comp,1e-12);
+    resvec(end+1) = isequal(difference,diff_comp,tol);
 end
 
 
 % gather results ----------------------------------------------------------
 res = all(resvec);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

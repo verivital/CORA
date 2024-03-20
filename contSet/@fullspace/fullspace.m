@@ -9,7 +9,6 @@ classdef fullspace < contSet
 %    This class represents objects defined as {x \in \R{n}}.
 %
 % Syntax:
-%    obj = fullspace()
 %    obj = fullspace(n)
 %
 % Inputs:
@@ -29,12 +28,12 @@ classdef fullspace < contSet
 %
 % See also: emptySet
 
-% Author:       Mark Wetzlinger
-% Written:      22-March-2023
-% Last update:  25-April-2023 (MW, disallow R^0)
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       22-March-2023
+% Last update:   25-April-2023 (MW, disallow R^0)
+% Last revision: 10-January-2024 (MW, reformat)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 properties (SetAccess = protected, GetAccess = public)
     % dimension of space
@@ -44,38 +43,39 @@ end
 methods
 
     function obj = fullspace(varargin)
-        % number of input arguments
+
+        % 0. avoid empty instantiation
+        if nargin == 0
+            throw(CORAerror('CORA:noInputInSetConstructor'));
+        end
+
+        % 1. copy constructor
+        if nargin == 1  && isa(varargin{1},'fullspace')
+            % copy constructor
+            obj = varargin{1};
+            return;
+        end
+
+        % 2. parse input arguments
         if nargin > 1
             throw(CORAerror('CORA:tooManyInputArgs',1));
         end
+        n = varargin{1};
+
+        % 3. check correctness of input arguments
+        inputArgsCheck({{n,'att','numeric',{'scalar','nonnegative','integer'}}});
         
-        if nargin == 0
-            % nothing to see here...
-
-        elseif nargin == 1 
-            if isa(varargin{1},'fullspace')
-                % copy constructor
-                obj = varargin{1};
-                return;
-            else
-                % instantiate n-dimensional space
-                n = varargin{1};
-                inputArgsCheck({{n,'att','numeric',...
-                    {'scalar','nonnegative','integer'}}});
-                
-                % set property
-                obj.dimension = n;
-            end
-        end
-
+        % 4. assign properties
+        obj.dimension = n;
     end
 end
 
 methods (Static = true)
     fs = generateRandom(varargin) % generate random full space
     fs = enclosePoints(points,varargin) % enclose point cloud with full space
+    fs = Inf(n) % instantiates a fullspace fullspace
 end
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

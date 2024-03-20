@@ -1,7 +1,7 @@
 function res = test_emptySet_emptySet
 % test_emptySet_emptySet - unit test function of constructor
 %
-% Syntax:  
+% Syntax:
 %    res = test_emptySet_emptySet
 %
 % Inputs:
@@ -16,16 +16,14 @@ function res = test_emptySet_emptySet
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      05-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       05-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-% no input argument (default: dimension 0)
-O = emptySet();
-res = O.dimension == 0;
+res = true(0);
 
 % dimension is zero
 n = 0;
@@ -37,15 +35,14 @@ n = 2;
 O = emptySet(n);
 res(end+1,1) = O.dimension == n;
 
-% too many input arguments
-try
-    O = emptySet(n,n);
-    res(end+1,1) = false;
-catch
-    res(end+1,1) = true;
-end
-
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+
+% too many input arguments
+try
+    O = emptySet(n,n);
+    res = false;
+end
+
+% ------------------------------ END OF CODE ------------------------------

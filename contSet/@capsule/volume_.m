@@ -1,7 +1,7 @@
 function vol = volume_(C,varargin)
 % volume_ - Computes the volume of a capsule
 %
-% Syntax:  
+% Syntax:
 %    vol = volume_(C)
 %
 % Inputs:
@@ -18,14 +18,14 @@ function vol = volume_(C,varargin)
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: none
+% See also: contSet/volume
 
-% Author:       Matthias Althoff
-% Written:      05-March-2019
-% Last update:  18-August-2022 (MW, include standardized preprocessing)
-% Last revision:27-March-2023 (MW, rename volume_)
+% Authors:       Matthias Althoff
+% Written:       05-March-2019
+% Last update:   18-August-2022 (MW, include standardized preprocessing)
+% Last revision: 27-March-2023 (MW, rename volume_)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % the volume is obtained by the volume of an n-dimensional ball and an
 % n-dimensional cylinder
@@ -33,12 +33,16 @@ function vol = volume_(C,varargin)
 % dimension
 n = dim(C);
 
+if representsa_(C,'emptySet',eps)
+    vol = 0; return
+end
+
 % special case
 if n == 0
     vol = 0; return
 end
 
-% volume of n-dimenional ball; requires Leonhard Euler's gamma function
+% volume of n-dimenional ball; requires Euler's gamma function
 volBall = pi^(n/2)/gamma(n/2+1)*C.r^n;
 
 % volume of n-dimensional cylinder is volume of (n-1)-dimensional ball
@@ -49,4 +53,4 @@ volCylinder = volBall_minus1*(2*norm(C.g));
 % total volume
 vol = volBall + volCylinder;
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

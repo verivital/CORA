@@ -2,7 +2,7 @@ function res = withinTol(a,b,tol)
 % withinTol - checks whether two numeric values (scalars, vectors, arrays)
 %    are within a given tolerance
 %
-% Syntax:  
+% Syntax:
 %    res = withinTol(a,b)
 %    res = withinTol(a,b,TOL)
 %
@@ -22,12 +22,12 @@ function res = withinTol(a,b,tol)
 %
 % See also: none
 
-% Author:       Victor Gassmann
-% Written:      19-July-2021
-% Last update:  ---
-% Last revision:20-July-2023 (TL, speed up input parsing)
+% Authors:       Victor Gassmann
+% Written:       19-July-2021
+% Last update:   03-December-2023 (MW, handling of Inf values)
+% Last revision: 20-July-2023 (TL, speed up input parsing)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % parse input
 if nargin < 3
@@ -60,7 +60,10 @@ res_abs = abs(a-b) <= tol;
 % relative tolerance
 res_rel = abs(a-b) ./ min(abs(a),abs(b)) <= tol;
 
-% joint result
-res = res_abs | res_rel;
+% handling of Inf values
+res_inf = isinf(a) & isinf(b) & (sign(a) == sign(b));
 
-%------------- END OF CODE --------------
+% joint result
+res = res_abs | res_rel | res_inf;
+
+% ------------------------------ END OF CODE ------------------------------

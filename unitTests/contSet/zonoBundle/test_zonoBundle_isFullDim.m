@@ -1,7 +1,7 @@
 function res = test_zonoBundle_isFullDim
 % test_zonoBundle_isFullDim - unit test function of isFullDim
 %
-% Syntax:  
+% Syntax:
 %    res = test_zonoBundle_isFullDim
 %
 % Inputs:
@@ -16,15 +16,15 @@ function res = test_zonoBundle_isFullDim
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      23-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       23-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % fully-empty zonoBundle
-zB = zonoBundle();
+zB = zonoBundle.empty(2);
 res = ~isFullDim(zB);
 
 % non-empty intersection
@@ -47,4 +47,4 @@ res(end+1,1) = ~isFullDim(zB);
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

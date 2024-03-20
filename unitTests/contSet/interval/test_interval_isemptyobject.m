@@ -1,7 +1,7 @@
 function res = test_interval_isemptyobject
 % test_interval_isemptyobject - unit test function of isemptyobject
 %
-% Syntax:  
+% Syntax:
 %    res = test_interval_isemptyobject
 %
 % Inputs:
@@ -16,21 +16,31 @@ function res = test_interval_isemptyobject
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      03-June-2022
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       03-June-2022
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-% instantiate intervals
-I1 = interval();
+res = true(0);
 
-lb = [-2;-1;-3];
-ub = [1;1;2];
-I2 = interval(lb,ub);
+% empty interval
+I = interval.empty(2);
+res(end+1,1) = isemptyobject(I);
 
-% check results
-res = isemptyobject(I1) && ~isemptyobject(I2);
+% 3D interval
+lb = [-2;-1;-3]; ub = [1;1;2];
+I = interval(lb,ub);
+res(end+1,1) = ~isemptyobject(I);
 
-%------------- END OF CODE --------------
+% interval matrix
+lb = [-2 0; -1 1; -3 -2]; ub = [1 1; 1 2; 2 0];
+I = interval(lb,ub);
+res(end+1,1) = ~isemptyobject(I);
+
+
+% combine results
+res = all(res);
+
+% ------------------------------ END OF CODE ------------------------------

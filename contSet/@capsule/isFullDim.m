@@ -2,7 +2,7 @@ function res = isFullDim(C)
 % isFullDim - checks if the dimension of the affine hull of a capsule is
 %    equal to the dimension of its ambient space
 %
-% Syntax:  
+% Syntax:
 %    res = isFullDim(C)
 %
 % Inputs:
@@ -21,17 +21,13 @@ function res = isFullDim(C)
 %
 % See also: zonotope/isFullDim
 
-% Author:       Niklas Kochdumper, Mark Wetzlinger
-% Written:      02-January-2020 
-% Last update:  ---
-% Last revision:---
+% Authors:       Niklas Kochdumper, Mark Wetzlinger
+% Written:       02-January-2020 
+% Last update:   09-January-2024 (MW, simplify)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-res = true;
-if C.r == 0
-    % just a point/line in this case
-    res = false;
-end
+res = ~isempty(C.r) && C.r > 0;
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

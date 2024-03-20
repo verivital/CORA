@@ -1,7 +1,7 @@
 function hs = generateRandom(varargin)
 % generateRandom - Generates a random halfspace
 %
-% Syntax:  
+% Syntax:
 %    hs = halfspace.generateRandom()
 %    hs = halfspace.generateRandom('Dimension',n)
 %    hs = halfspace.generateRandom('Dimension',n,'NormalVector',c)
@@ -26,12 +26,12 @@ function hs = generateRandom(varargin)
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      17-Sep-2019
-% Last update:  19-May-2022 (name-value pair syntax)
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       17-September-2019
+% Last update:   19-May-2022 (name-value pair syntax)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % name-value pairs -> number of input arguments is always a multiple of 2
 if mod(nargin,2) ~= 0
@@ -43,9 +43,9 @@ else
     checkNameValuePairs(NVpairs,{'Dimension','NormalVector','Offset'});
     % dimension given?
     [NVpairs,n] = readNameValuePair(NVpairs,'Dimension');
-    % dimension given?
+    % normal vector given?
     [NVpairs,c] = readNameValuePair(NVpairs,'NormalVector');
-    % dimension given?
+    % offset given?
     [NVpairs,d] = readNameValuePair(NVpairs,'Offset');
 end
 
@@ -64,14 +64,14 @@ if isempty(n)
     end
 end
 
-% default computation for dimension
+% default computation for normal vector
 if isempty(c)
     c = 5 * randn(n,1);
     % normalize
     c = c ./ vecnorm(c,2);
 end
 
-% default computation for dimension
+% default computation for offset
 if isempty(d)
     d = 5*randn(1);
 end
@@ -80,4 +80,4 @@ end
 % instantiate interval
 hs = halfspace(c,d);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

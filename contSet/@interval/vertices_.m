@@ -1,7 +1,7 @@
 function V = vertices_(I,varargin)
 % vertices_ - Computes vertices of an interval object
 %
-% Syntax:  
+% Syntax:
 %    V = vertices_(I)
 %
 % Inputs:
@@ -18,15 +18,15 @@ function V = vertices_(I,varargin)
 % Subfunctions: none
 % MAT-files required: none
 %
-% See also: zonotope/vertices_
+% See also: contSet/vertices, zonotope/vertices_
 
-% Author:       Matthias Althoff, Mark Wetzlinger
-% Written:      24-July-2006 
-% Last update:  27-March-2023 (MW, rename vertices_)
-%               28-April-2023 (MW, remove duplicates in degenerate case)
-% Last revision:05-April-2023 (MW, rewrite to support unbounded intervals)
+% Authors:       Matthias Althoff, Mark Wetzlinger
+% Written:       24-July-2006 
+% Last update:   27-March-2023 (MW, rename vertices_)
+%                28-April-2023 (MW, remove duplicates in degenerate case)
+% Last revision: 05-April-2023 (MW, rewrite to support unbounded intervals)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % empty case
 if dim(I) == 0
@@ -64,23 +64,4 @@ if any(idxZeroDim)
     V(~idxZeroDim,:) = V_;
 end
 
-% old version:
-% % compute matrix with all possible generator combinations
-% one_pm = [1 -1];
-% for i=1:length(I.inf)-1
-%     one_pm = [ones(1,2^i) -ones(1,2^i); one_pm one_pm];
-% end
-% 
-% Iextended = [ones(1,size(one_pm,2));one_pm];
-% 
-% % convert to zonotope 
-% zono = zonotope(I);
-% Z = zono.Z;
-% 
-% % obtain vertices
-% V = zeros(size(Z,1),size(one_pm,2));
-% for i = 1:size(one_pm,2)
-%     V(:,i) = Z*Iextended(:,i);
-% end
-
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

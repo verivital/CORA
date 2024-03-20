@@ -1,7 +1,7 @@
 function res = test_zonoBundle_supportFunc
 % test_zonoBundle_supportFunc - unit test function of supportFunc
 %
-% Syntax:  
+% Syntax:
 %    res = test_zonoBundle_supportFunc
 %
 % Inputs:
@@ -16,16 +16,16 @@ function res = test_zonoBundle_supportFunc
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      23-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       23-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 res = true;
 % fully-empty set
-zB = zonoBundle();
+zB = zonoBundle.empty(2);
 [val,x] = supportFunc(zB,[1;0],'upper');
 res(end+1,1) = val == -Inf && isnumeric(x) && isempty(x);
 [val,x] = supportFunc(zB,[1;0],'lower');
@@ -63,4 +63,4 @@ res(end+1,1) = isequal(val,interval(-Inf,Inf));
 % combine results
 res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

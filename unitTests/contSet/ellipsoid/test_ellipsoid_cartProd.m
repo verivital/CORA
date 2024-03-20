@@ -1,7 +1,7 @@
 function res = test_ellipsoid_cartProd
 % test_ellipsoid_cartProd - unit test function of cartProd
 %
-% Syntax:  
+% Syntax:
 %    res = test_ellipsoid_cartProd
 %
 % Inputs:
@@ -16,19 +16,19 @@ function res = test_ellipsoid_cartProd
 %
 % See also: -
 
-% Author:       Victor Gassmann
-% Written:      26-July-2021
-% Last update:  03-January-2023 (MW, add ellipsoid-numeric case)
-% Last revision:---
+% Authors:       Victor Gassmann
+% Written:       26-July-2021
+% Last update:   03-January-2023 (MW, add ellipsoid-numeric case)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 res = true;
 load cases.mat E_c 
 
 % empty set
 % try 
-%     cartProd(E_c{1}.E1,ellipsoid());
+%     cartProd(E_c{1}.E1,ellipsoid.empty(2));
 %     res = false;
 % catch ME 
 %     if ~strcmp(ME.identifier,'CORA:notSupported')
@@ -86,4 +86,4 @@ if ~compareMatrices(E_.Q,[1 0 0; 0 1 0; 0 0 0]) ...
     res = false;
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

@@ -2,14 +2,14 @@ function printTestOverview(varargin)
 % printTestOverview - print information about the current state
 %    of unit testing to the console
 %
-% Syntax:  
+% Syntax:
 %    printTestOverview()
 %    printTestOverview(format)
 %    printTestOverview(format,')
 %
 % Inputs:
 %    format - (optional) results of which test suite should be displayed:
-%               'short' (default), 'long', 'mp', 'mosek', 'sdpt3',
+%               'short' (default), 'long', 'flaky', 'mp', 'mosek', 'sdpt3',
 %               'intlab', 'nn'
 %    type - name-value pairs
 %               'LongestTests', <longestTests> number of longest tests
@@ -22,13 +22,14 @@ function printTestOverview(varargin)
 %    printTestOverview('long');
 %    printTestOverview('long','LongestTests',10);
 
-% Author:       Mark Wetzlinger
-% Written:      22-January-2021
-% Last update:  09-April-2023 (MW, remove 'classes', integrate other test suites)
-%               28-April-2023 (MW, add name-value pairs)
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       22-January-2021
+% Last update:   09-April-2023 (MW, remove 'classes', integrate other test suites)
+%                28-April-2023 (MW, add name-value pairs)
+%                23-November-2023 (TL, failed tests show call syntax)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 if nargin > 1 && mod(nargin-1,2) ~= 0
     throw(CORAerror('CORA:oddNumberInputArgs'));
@@ -42,7 +43,7 @@ format = setDefaultValues({'short'},varargin);
 % more leniency in writing of identifiers
 format = lower(format);
 % check if correct identifier provided
-inputArgsCheck({{format,'str',{'short','long','intlab','mosek','mp','sdpt3','nn'}}});
+inputArgsCheck({{format,'str',{'short','long','flaky','intlab','mosek','mp','sdpt3','nn','examples','benchmarks'}}});
 
 % check list of name-value pairs
 checkNameValuePairs(NVpairs,{'LongestTests'});
@@ -87,25 +88,28 @@ fprintf('-*---------------------------------*-\n');
 fprintf('--- Results of last full test run ---\n\n');
 
 % print which test suite
-fprintf(['  test suite: ',format,'\n']);
+fprintf(['  Test suite: ',format,'\n']);
 
-% print machine and Matlab version
-fprintf(['  system:     ',resultsTestSuite.hostsystem,'\n']);
+% print CORA version, Matlab version and machine
+if isfield(resultsTestSuite,'coraversion')
+    fprintf(['  Version:    ',resultsTestSuite.coraversion,'\n']);
+end
 fprintf(['  Matlab:     ',resultsTestSuite.matlabversion,'\n']);
+fprintf(['  System:     ',resultsTestSuite.hostsystem,'\n']);
 
 % print date and time
-fprintf(['  date/time:  ',resultsTestSuite.date,'\n']);
+fprintf(['  Date/time:  ',resultsTestSuite.date,'\n']);
 
 % print test results
-fprintf('  tests:\n');
+fprintf('  Tests:\n');
 fprintf(['  .. total:   ',num2str(nrTotalTests),'\n']);
 fprintf(['  .. failed:  ',num2str(nrFailedTests),'\n']);
 
 % print names of all failed tests
 if nrFailedTests > 0
-    fprintf("  .. .. %s (seed=%i)\n", nameFailedTests{1}, seedFailedTests(1));
+    fprintf("  .. .. rng(%i); %s\n", seedFailedTests(1),nameFailedTests{1});
     for i=2:nrFailedTests
-    fprintf("        %s (seed=%i)\n", nameFailedTests{i}, seedFailedTests(i));
+    fprintf("        rng(%i); %s\n", seedFailedTests(i),nameFailedTests{i});
     end
 end
 
@@ -121,4 +125,4 @@ end
 % print footer
 fprintf('-*---------------------------------*-\n');
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

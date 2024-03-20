@@ -1,7 +1,7 @@
 function E = enclosePoints(points,varargin)
 % enclosePoints - enclose a point cloud with an ellipsoid
 %
-% Syntax:  
+% Syntax:
 %    E = enclosePoints(points)
 %    E = enclosePoints(points,method);
 %
@@ -35,14 +35,13 @@ function E = enclosePoints(points,varargin)
 %
 % See also: zonotope/enclosePoints, interval/enclosePoints
 
-% Author:       Niklas Kochdumper, Victor Gassmann
-% Written:      05-May-2020
-% Last update:  15-March-2021
-%               09-June-2022 (VG: removed false assumption on center in
-%               'min-vol')
+% Authors:       Niklas Kochdumper, Victor Gassmann
+% Written:       05-May-2020
+% Last update:   15-March-2021
+%                09-June-2022 (VG, removed false assumption on center in 'min-vol')
 % Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % parse input arguments
 method = setDefaultValues({'cov'},varargin);
@@ -74,7 +73,7 @@ end
 % handle special cases n_nd=0 and n_nd=1
 if n_nd==0
     % all zero matrix
-    E = ellipsoid;
+    E = ellipsoid.empty(n);
 
 elseif n_nd==1
     % interval arithmetic (is exact in this case)
@@ -410,4 +409,4 @@ if n_d>0
 end
 E = T*E_ext + c;
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

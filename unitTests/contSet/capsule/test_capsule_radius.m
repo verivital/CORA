@@ -1,7 +1,7 @@
 function res = test_capsule_radius
 % test_capsule_radius - unit test function of radius
 %
-% Syntax:  
+% Syntax:
 %    res = test_capsule_radius
 %
 % Inputs:
@@ -16,22 +16,25 @@ function res = test_capsule_radius
 %
 % See also: -
 
-% Author:       Mark Wetzlinger
-% Written:      28-August-2019
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       28-August-2019
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
-% instantiate capsule
+res = true(0);
+
+% empty capsule
+C = capsule.empty(2);
+res(end+1,1) = isempty(radius(C));
+
+% 2D capsule
 C = capsule([0;0],[1;0],0.5);
+res(end+1,1) = withinTol(radius(C),1.5);
 
-% compute enclosing radius
-C_rad = radius(C);
-% true solution
-C_rad_true = 1.5;
 
-% compare results
-res = withinTol(C_rad,C_rad_true);
+% combine results
+res = all(res);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

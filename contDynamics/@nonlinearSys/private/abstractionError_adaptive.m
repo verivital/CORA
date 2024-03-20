@@ -3,7 +3,7 @@ function [VerrorDyn,VerrorStat,err,options] = abstractionError_adaptive(obj,opti
 % abstractionError_adaptive - computes the abstraction error
 % note: no Taylor Model or zoo integration
 %
-% Syntax:  
+% Syntax:
 %    [VerrorDyn,VerrorStat,err,options] = abstractionError_adaptive(obj,options,R,Rdiff,...
 %     H,Zdelta,VerrorStat,T,ind3,Zdelta3)
 %
@@ -35,12 +35,13 @@ function [VerrorDyn,VerrorStat,err,options] = abstractionError_adaptive(obj,opti
 %
 % See also: linReach, linError_*, preCompStatError
 
-% Author:        Mark Wetzlinger
+% Authors:       Mark Wetzlinger
 % Written:       14-January-2020
 % Last update:   14-April-2020
+%                20-November-2023 (MW, store generators selected for reduction)
 % Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % compute interval of reachable set and input (at origin)
 IH_x = interval(R);
@@ -75,7 +76,7 @@ if strcmp(options.alg,'lin') && options.tensorOrder == 2
             H = obj.hessian(totalInt_x,totalInt_u);
             % very first step: check if Hessian is constant
             if ~options.hessianCheck
-                options = checkIfHessianConst(obj,options,H,totalInt_x,totalInt_u);
+                options = aux_checkIfHessianConst(obj,options,H,totalInt_x,totalInt_u);
             end
         end
     catch ME
@@ -119,7 +120,25 @@ elseif strcmp(options.alg,'lin') && options.tensorOrder == 3
     dz = [IH_x; IH_u];
 
     % reduce zonotope
-    Rred = reduce(R,'adaptive',sqrt(options.redFactor));
+    if isfield(options,'gredIdx')
+        if length(options.gredIdx.Rred) == options.i
+            % select the same generators for reduction as in the previous
+            % iteration of the current time step to limit the influence of
+            % the order reduction on the computation of the gain order
+            if any(options.gredIdx.Rred{options.i} > size(generators(R),2))
+                keyboard
+            end
+            Rred = reduce(R,'idx',options.gredIdx.Rred{options.i});
+        else
+            % reduce adaptively and store indices of generators that have
+            % not been selected for reduction
+            [Rred,~,options.gredIdx.Rred{options.i}] = ...
+                reduce(R,'adaptive',sqrt(options.redFactor));
+        end
+    else
+        % safety branch (call from algorithm without gredIdx)
+        Rred = reduce(R,'adaptive',sqrt(options.redFactor));
+    end
     
     % zonotope (states + input)
     Z = cartProd(Rred,options.U);
@@ -165,7 +184,22 @@ elseif strcmp(options.alg,'lin') && options.tensorOrder == 3
     
     % overall linearization error
     VerrorDyn = errorSec + errorLagr;
-    VerrorDyn = reduce(VerrorDyn,'adaptive',10*options.redFactor);
+    if isfield(options,'gredIdx')
+        if length(options.gredIdx.VerrorDyn) == options.i
+            % select the same generators for reduction as in the previous
+            % iteration of the current time step to limit the influence of
+            % the order reduction on the computation of the gain order
+            VerrorDyn = reduce(VerrorDyn,'idx',options.gredIdx.VerrorDyn{options.i});
+        else
+            % reduce adaptively and store indices of generators that have
+            % not been selected for reduction
+            [VerrorDyn,~,options.gredIdx.VerrorDyn{options.i}] = ...
+                reduce(VerrorDyn,'adaptive',10*options.redFactor);
+        end
+    else
+        % safety branch (call from algorithm without gredIdx)
+        VerrorDyn = reduce(VerrorDyn,'adaptive',10*options.redFactor);
+    end
     
     VerrorStat = [];
     
@@ -239,9 +273,9 @@ end
 end
 
 
-% Auxiliary Function --------------
+% Auxiliary functions -----------------------------------------------------
 
-function options = checkIfHessianConst(obj,options,H,totalInt_x,totalInt_u)
+function options = aux_checkIfHessianConst(obj,options,H,totalInt_x,totalInt_u)
 % check if hessian is constant --- only once executed! (very first step)
 % returns: isHessianConst, hessianCheck, hessianConst
 
@@ -249,8 +283,9 @@ function options = checkIfHessianConst(obj,options,H,totalInt_x,totalInt_u)
 options.isHessianConst = true;
 
 % evaluate Hessians with larger set, check if result equal
-H_test = obj.hessian(enlarge(totalInt_x,1.1),...
-    enlarge(totalInt_u,1.1));
+scalingFactor = 1.1;
+H_test = obj.hessian(enlarge(totalInt_x,scalingFactor),...
+                     enlarge(totalInt_u,scalingFactor));
 for i=1:length(H)
     if ~all(H{i} == H_test{i})
         options.isHessianConst = false; break
@@ -269,4 +304,4 @@ options.hessianCheck = true;
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

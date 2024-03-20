@@ -1,7 +1,7 @@
 function I = interval(C)
 % interval - Over-approximate a capsule by an interval
 %
-% Syntax:  
+% Syntax:
 %    I = interval(C)
 %
 % Inputs:
@@ -24,15 +24,22 @@ function I = interval(C)
 %
 % See also: zonotope
 
-% Author:       Niklas Kochdumper
-% Written:      20-November-2019 
-% Last update:  ---
-% Last revision:---
+% Authors:       Niklas Kochdumper
+% Written:       20-November-2019 
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
+
+% dimension
+n = dim(C);
+
+if representsa_(C,'emptySet',eps)
+    I = interval.empty(n);
+    return
+end
 
 % initialization
-n = length(C.c);
 ub = zeros(n,1);
 lb = zeros(n,1);
 E = eye(n);
@@ -46,4 +53,4 @@ end
 % instantiate interval
 I = interval(lb,ub);
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

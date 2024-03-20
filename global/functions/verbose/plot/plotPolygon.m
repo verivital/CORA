@@ -1,7 +1,7 @@
 function han = plotPolygon(V,varargin)
 % plotPolygon - plot a polygon defined by its vertices
 %
-% Syntax:  
+% Syntax:
 %    han = plotPolygon(V,varargin)
 %
 % Inputs:
@@ -23,15 +23,16 @@ function han = plotPolygon(V,varargin)
 %
 % See also:
 
-% Author:       Niklas Kochdumper, Tobias Ladner
-% Written:      05-May-2020
-% Last update:  15-July-2020 (MW, merge with plotFilledPolygon)
-%               05-April-2023 (TL: generalized function)
-%               11-July-2023 (TL: bug fix sets with holes and FaceColor)
-%               12-July-2023 (TL: cut off infinity values at axis limits)
-% Last revision:---
+% Authors:       Niklas Kochdumper, Tobias Ladner
+% Written:       05-May-2020
+% Last update:   15-July-2020 (MW, merge with plotFilledPolygon)
+%                05-April-2023 (TL, generalized function)
+%                11-July-2023 (TL, bug fix sets with holes and FaceColor)
+%                12-July-2023 (TL, cut off infinity values at axis limits)
+%                29-February-2024 (TL, fix ColorOrderIndex in filled 3d)
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % default
 NVpairs = {'Color',CORAcolor('CORA:next')};
@@ -137,7 +138,17 @@ elseif size(V, 1) == 2
             V = [V,fliplr(regStart)];            
         end
 
+        % sometimes the color index does not get increased automatically
+        ax = gca();
+        cidx = ax.ColorOrderIndex;
+
+        % plot with facecolor
         han = fill(V(1,:), V(2,:), facecolor, NVpairs{:});
+        
+        if cidx == ax.ColorOrderIndex
+            % update color index if it hasn't changed
+            updateColorIndex;
+        end
     end
 
     % reset axis mode
@@ -159,7 +170,16 @@ elseif size(V, 1) == 3
     if ~hasFaceColor
         han = plot3(V(1,:),V(2,:),V(3,:),NVpairs{:}); 
     else
+        % sometimes the color index does not get increased automatically
+        ax = gca();
+        cidx = ax.ColorOrderIndex;
+
         han = fill3(V(1,:),V(2,:),V(3,:),facecolor,NVpairs{:}); 
+        
+        if cidx == ax.ColorOrderIndex
+            % update color index if it hasn't changed
+            updateColorIndex;
+        end
     end
     aux_show3dAxis()
 
@@ -170,6 +190,7 @@ if nargout == 0
 end
 
 end
+
 
 % Auxiliary functions -----------------------------------------------------
 
@@ -230,20 +251,19 @@ function V = aux_cutInfinityAtLimits(V)
     % or smallest/largest value of V of respective dimension,
     % whichever is further 'outside'
 
+    [xLim,yLim,zLim] = getUnboundedAxisLimits(V);
+
     if any(isinf(V),'all')
         % x-axis
-        xLim = xlim();
         V(1,V(1,:) == -inf) = min([V(1,V(1,:) ~= -inf), xLim(1)]);
         V(1,V(1,:) == inf) = max([V(1,V(1,:) ~= inf), xLim(2)]);
 
         % y-axis
-        yLim = ylim();
         V(2,V(2,:) == -inf) = min([V(2,V(2,:) ~= -inf), yLim(1)]);
         V(2,V(2,:) == inf) = max([V(2,V(2,:) ~= inf), yLim(2)]);
     
         if size(V,1) == 3
             % z-axis
-            zLim = zlim();
             V(3,V(3,:) == -inf) = min([V(3,V(3,:) ~= -inf), zLim(1)]);
             V(3,V(3,:) == inf) = max([V(3,V(3,:) ~= inf), zLim(2)]);
         end
@@ -280,4 +300,4 @@ function V = aux_convHull(V)
     end
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

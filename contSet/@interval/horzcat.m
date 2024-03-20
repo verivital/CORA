@@ -1,7 +1,7 @@
 function I = horzcat(varargin)
 % horzcat - Overloads the operator for horizontal concatenation
 %
-% Syntax:  
+% Syntax:
 %    I = horzcat(varargin)
 %
 % Inputs:
@@ -21,21 +21,19 @@ function I = horzcat(varargin)
 %
 % See also: none
 
-% Author:       Matthias Althoff
-% Written:      26-June-2015 
-% Last update:  08-August-2016
-% Last revision:---
+% Authors:       Matthias Althoff
+% Written:       26-June-2015 
+% Last update:   08-August-2016
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 I = varargin{1};
 
 %if object is not an interval
 if ~isa(I,'interval')
     tmp = I;
-    I = interval();
-    I.inf = tmp;
-    I.sup = tmp;
+    I = interval(tmp,tmp);
 end
 
 for i = 2:nargin
@@ -50,4 +48,4 @@ for i = 2:nargin
 end
 
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

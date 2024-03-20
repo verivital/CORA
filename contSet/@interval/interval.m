@@ -6,7 +6,6 @@ classdef (InferiorClasses = {?mp}) interval < contSet
 %    {x | a_i <= x <= b_i, \forall i = 1,...,n}.
 %
 % Syntax:
-%    obj = interval()
 %    obj = interval(I)
 %    obj = interval(a)
 %    obj = interval(a,b)
@@ -31,18 +30,19 @@ classdef (InferiorClasses = {?mp}) interval < contSet
 %
 % See also: interval, polytope
 
-% Author:       Matthias Althoff, Niklas Kochdumper
-% Written:      19-June-2015
-% Last update:  18-November-2015
-%               26-January-2016
-%               15-July-2017 (NK)
-%               01-May-2020 (MW, delete redundant if-else)
-%               20-March-2021 (MW, error messages)
-%               14-December-2022 (TL, property check in inputArgsCheck)
-%               29-March-2023 (TL: optimized constructor)
-% Last revision:16-June-2023 (MW, restructure using auxiliary functions)
+% Authors:       Matthias Althoff, Niklas Kochdumper, Mark Wetzlinger
+% Written:       19-June-2015
+% Last update:   18-November-2015
+%                26-January-2016
+%                15-July-2017 (NK)
+%                01-May-2020 (MW, delete redundant if-else)
+%                20-March-2021 (MW, error messages)
+%                14-December-2022 (TL, property check in inputArgsCheck)
+%                29-March-2023 (TL, optimized constructor)
+%                08-December-2023 (MW, handle [-Inf,-Inf] / [Inf,Inf] case)
+% Last revision: 16-June-2023 (MW, restructure using auxiliary functions)
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 properties (SetAccess = private, GetAccess = public)
     inf;    % lower bound
@@ -53,6 +53,11 @@ methods
 
     % class constructor
     function obj = interval(varargin)
+
+        % 0. avoid empty instantiation
+        if nargin == 0
+            throw(CORAerror('CORA:noInputInSetConstructor'));
+        end
 
         % 1. copy constructor
         if nargin == 1 && isa(varargin{1},'interval')
@@ -65,7 +70,10 @@ methods
         % 3. check correctness of input arguments
         aux_checkInputArgs(lb,ub,nargin);
 
-        % 4. assign properties
+        % 4. compute properties (deal with corner cases)
+        [lb,ub] = aux_computeProperties(lb,ub);
+
+        % 5. assign properties
         obj.inf = lb;
         obj.sup = ub;
 
@@ -102,19 +110,21 @@ methods
     p = gridPoints(I,segments) % generate grid points
     I = horzcat(varargin) % overloaded horizontal concatenation
     res = infimum(I) % read lower limit
-    res = isempty(I) % empty object check
     res = isequal(I1,I2,varargin) % equal objects check
     res = isFullDim(I) % full dimensionality check
     res = isscalar(I) % one-dimensionality check
     res = issparse(I) % issparse
     res = le(I1,I2) % subseteq check
     l = length(I) % largest dimension of interval
+    I = lift_(I,N,proj) % lift to a high-dimensional space
     I = log(I) % logarithm function
     res = lt(I1,I2) % subset check
+    I = max(I,Y,varargin) % maximum
     I = minkDiff(I,S,varargin) % Minkowski difference
+    I = min(I,Y,varargin) % minimum 
     res = minus(minuend,subtrahend) % overloaded - operator (binary)
     res = mpower(base,exponent) % overloaded ^ operator
-    P = mptPolytope(I) % conversion to mptPolytope object
+    P = polytope(I) % conversion to polytope object
     res = mrdivide(numerator,denominator) % overloaded / operator
     res = mtimes(factor1,factor2) % overloaded * operator
     res = ne(I1,I2) % overloaded ~= operator
@@ -126,9 +136,11 @@ methods
     res = power(base,exponent) % overloaded .^ operator
     res = prod(I,varargin) % overloaded prod-function
     I = project(I,dims) % projection onto subspace
+    I = projectHighDim_(I,N,proj) % project to a high-dimensional space
     I = quadMap(varargin) % quadratic map
     r = rad(I) % radius (half of diameter)
     r = radius(I) % radius of enclosing hyperball
+    [res,S] = representsa_(I,type,tol,varargin) % comparison to other representations
     res = rdivide(numerator,denominator) % overloaded ./ operator
     I = reshape(I,varargin) % overloaded reshape-function
     res = sin(I) % sine function
@@ -157,11 +169,14 @@ end
 methods (Static = true)
     I = generateRandom(varargin) % generates random interval
     I = enclosePoints(points) % enclosure of point cloud
+    I = empty(n) % instantiates an empty interval
+    I = Inf(n) % instantiates a fullspace interval
 end
 
 end
 
-% Auxiliary Functions -----------------------------------------------------
+
+% Auxiliary functions -----------------------------------------------------
 
 function [lb,ub] = aux_parseInputArgs(varargin)
 % parse input arguments from user and assign to variables
@@ -170,18 +185,12 @@ function [lb,ub] = aux_parseInputArgs(varargin)
     if nargin > 2
         throw(CORAerror('CORA:tooManyInputArgs',2));
     end
-
-    % no input arguments
-    if nargin == 0
-        lb = []; ub = [];
-        return
-    end
-
+    
     % assign lower and upper bound
     [lb,ub] = setDefaultValues({[],[]},varargin);
 
     % set upper bound to value of lower bound if only one value given
-    if ~isempty(lb) && isempty(ub)
+    if isnumeric(lb) && ~isempty(lb) && isempty(ub)
         ub = lb;
     end
 
@@ -198,17 +207,19 @@ function aux_checkInputArgs(lb,ub,n_in)
             {ub, 'att', 'numeric', 'nonnan'}; ...
         })
 
-        if ~all(size(lb) == size(ub))
-            throw(CORAerror('CORA:wrongInputInConstructor',...
-                'Limits are of different dimension.'));
-        elseif length(size(lb)) > 2
-            throw(CORAerror('CORA:wrongInputInConstructor',...
-                'Only 1d and 2d intervals are supported.'));
-        elseif ~all(all(lb <= ub))
-            % check again using tolerance (little bit slower)
-            if ~all(all(lb < ub | withinTol(double(lb),double(ub))))
+        if ~isempty(lb) && ~isempty(ub)
+            if ~all(size(lb) == size(ub))
                 throw(CORAerror('CORA:wrongInputInConstructor',...
-                    'Lower limit larger than upper limit.'));
+                    'Limits are of different dimension.'));
+            elseif length(size(lb)) > 2
+                throw(CORAerror('CORA:wrongInputInConstructor',...
+                    'Only 1d and 2d intervals are supported.'));
+            elseif ~all(all(lb <= ub))
+                % check again using tolerance (little bit slower)
+                if ~all(all(lb < ub | withinTol(double(lb),double(ub))))
+                    throw(CORAerror('CORA:wrongInputInConstructor',...
+                        'Lower limit larger than upper limit.'));
+                end
             end
         end
         
@@ -216,4 +227,27 @@ function aux_checkInputArgs(lb,ub,n_in)
 
 end
 
-%------------- END OF CODE -------
+function [lb,ub] = aux_computeProperties(lb,ub)
+% if one dimension is [-Inf,-Inf] or [Inf,Inf], the interval is empty
+% (cannot be displayed for interval matrices -> throws error)
+
+    % assign correct size if empty interval
+    if isempty(lb) && isempty(ub)
+        ub = zeros(size(lb));
+    end
+
+    % check if given interval is empty
+    if any(any( isinf(lb) & isinf(ub) & (sign(lb) == sign(ub)) ))
+        n = size(lb);
+        if all(n > 1)
+            throw(CORAerror('CORA:wrongInputInConstructor',...
+                'Empty interval matrix cannot be instantiated'));
+        end
+        n(n==1) = 0;
+        lb = zeros(n);
+        ub = zeros(n);
+    end
+
+end
+
+% ------------------------------ END OF CODE ------------------------------

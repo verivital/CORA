@@ -2,7 +2,7 @@ function [obj,options] = expmtie_adaptive(obj,options)
 % expmtie_adaptive - computes the remainder of the exponential matrix
 %    and the correction matrix
 %
-% Syntax:  
+% Syntax:
 %    obj = expmtie_adaptive(obj,options)
 %
 % Inputs:
@@ -24,12 +24,12 @@ function [obj,options] = expmtie_adaptive(obj,options)
 %
 % See also: -
 
-% Author:        Mark Wetzlinger
+% Authors:       Mark Wetzlinger
 % Written:       26-May-2020
 % Last update:   ---
 % Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 % load data from object/options structure
 A = obj.A;
@@ -37,6 +37,7 @@ A_abs = abs(A);
 n = obj.dim;
 deltat = options.timeStep;
 % deltatbyfac = options.factor;
+taylorTermsGiven = isfield(options,'taylorTerms');
 
 % initialize 
 Apower{1} = A;
@@ -79,9 +80,16 @@ while true
     
     % norm as stopping criterion (no abs() because already all positive)
     normAfro(eta,1) = norm(Asum_pos - Asum_neg,'fro');
-    
-    if ~any(any(Apower{eta})) ... % nilpotent
-            || 1 - normAfro(eta-1)/normAfro(eta) < options.zetaTlin % relative convergence
+
+    if taylorTermsGiven
+        % has to be same eta as in other runs of same step
+        stopCondition = eta == options.taylorTerms;
+    else
+        stopCondition = ~any(any(Apower{eta})) ... % nilpotent
+            || 1 - normAfro(eta-1)/normAfro(eta) < options.zetaTlin; % relative convergence
+    end
+
+    if stopCondition
         % determine error due to finite Taylor series, see eq.(2) in [1]
         W = expm(A_abs*options.timeStep) - M;
         % compute absolute value of W for numerical stability
@@ -110,4 +118,4 @@ obj.taylor.F = Asum + E;
 
 end
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------

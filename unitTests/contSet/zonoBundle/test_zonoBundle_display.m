@@ -1,7 +1,7 @@
 function res = test_zonoBundle_display
 % test_zonoBundle_display - unit test function of display
 %
-% Syntax:  
+% Syntax:
 %    res = test_zonoBundle_display
 %
 % Inputs:
@@ -16,17 +16,17 @@ function res = test_zonoBundle_display
 %
 % See also: none
 
-% Author:       Mark Wetzlinger
-% Written:      23-April-2023
-% Last update:  ---
-% Last revision:---
+% Authors:       Mark Wetzlinger
+% Written:       23-April-2023
+% Last update:   ---
+% Last revision: ---
 
-%------------- BEGIN CODE --------------
+% ------------------------------ BEGIN CODE -------------------------------
 
 res = true;
 
 % fully-empty zonoBundle
-zB = zonoBundle()
+zB = zonoBundle.empty(2)
 
 % non-empty intersection
 Z1 = zonotope([1;1], [3 0; 0 2]);
@@ -41,4 +41,4 @@ zB = zonoBundle({Z1,Z2})
 Z3 = zonotope([0;1]);
 zB = zonoBundle({Z1,Z3})
 
-%------------- END OF CODE --------------
+% ------------------------------ END OF CODE ------------------------------
